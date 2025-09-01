@@ -140,6 +140,10 @@
             text-align: center;
             padding: 20px;
         }
+        
+        .alert-info {
+            border-left: 4px solid #17a2b8;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +153,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1><i class="fas fa-database me-2"></i>Dashboard Skripsi - Repository Digital</h1>
-                    <p class="mb-0">Sistem Manajemen Data Skripsi Terintegrasi Google Drive</p>
+                    <p class="mb-0">Sistem Manajemen Data Skripsi Terintegrasi Google Sheets</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <button class="btn btn-light me-2" id="refreshData"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -158,6 +162,16 @@
                     </a>
                 </div>
             </div>
+        </div>
+
+        <!-- Info Sheet -->
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle me-2"></i>Data bersumber dari Google Sheets</h5>
+            <p class="mb-0">Dashboard ini terhubung langsung dengan: 
+                <a href="https://docs.google.com/spreadsheets/d/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/edit#gid=1502288531" target="_blank">
+                    https://docs.google.com/spreadsheets/d/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0
+                </a>
+            </p>
         </div>
 
         <!-- Navigation Tabs -->
@@ -184,7 +198,7 @@
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2">Memuat data...</p>
+            <p class="mt-2">Memuat data dari Google Sheets...</p>
         </div>
 
         <!-- Tab Content -->
@@ -282,24 +296,9 @@
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="recentActivityBody">
                                     <tr>
-                                        <td>12 Apr 2023</td>
-                                        <td>Ahmad Fauzi (2020111001)</td>
-                                        <td>Pengajuan judul skripsi</td>
-                                        <td><span class="badge bg-warning">Menunggu</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>11 Apr 2023</td>
-                                        <td>Siti Rahayu (2020112056)</td>
-                                        <td>Upload bab 1 revisi</td>
-                                        <td><span class="badge bg-success">Selesai</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>10 Apr 2023</td>
-                                        <td>Muhammad Ali (2020113078)</td>
-                                        <td>Bimbingan proposal</td>
-                                        <td><span class="badge bg-info">Proses</span></td>
+                                        <td colspan="4" class="text-center">Memuat data...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -344,10 +343,7 @@
                                 <label class="form-label">Tahun Lulus</label>
                                 <select class="form-select" id="yearFilter">
                                     <option value="">Semua Tahun</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
+                                    <!-- Options akan diisi oleh JavaScript -->
                                 </select>
                             </div>
                         </div>
@@ -356,32 +352,26 @@
                                 <label class="form-label">Program Studi</label>
                                 <select class="form-select" id="prodiFilter">
                                     <option value="">Semua Prodi</option>
-                                    <option value="Ekonomi Syariah">Ekonomi Syariah</option>
-                                    <option value="Perbankan Syariah">Perbankan Syariah</option>
-                                    <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
+                                    <!-- Options akan diisi oleh JavaScript -->
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="mb-2">
-                                <label class="form-label">Tema Penelitian</label>
-                                <select class="form-select" id="themeFilter">
-                                    <option value="">Semua Tema</option>
-                                    <option value="keuangan">Keuangan Syariah</option>
-                                    <option value="perbankan">Perbankan Syariah</option>
-                                    <option value="manajemen">Manajemen</option>
-                                    <option value="fiqh">Fiqh Muamalah</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Pembimbing</label>
-                                <select class="form-select" id="supervisorFilter">
+                                <label class="form-label">Pembimbing 1</label>
+                                <select class="form-select" id="pembimbingFilter">
                                     <option value="">Semua Pembimbing</option>
-                                    <option value="1">Dr. Ahmad Surya, M.E.I.</option>
-                                    <option value="2">Dr. Siti Aminah, M.Si.</option>
-                                    <option value="3">Prof. Dr. Muhammad Ali, M.A.</option>
+                                    <!-- Options akan diisi oleh JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-2">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">Semua Status</option>
+                                    <option value="Lulus">Lulus</option>
+                                    <option value="Proses">Dalam Proses</option>
                                 </select>
                             </div>
                         </div>
@@ -392,19 +382,20 @@
                 <div class="card">
                     <div class="card-header">
                         <i class="fas fa-list me-2"></i>Katalog Skripsi Digital 
-                        <span class="google-drive-badge">Google Drive</span>
+                        <span class="google-drive-badge">Google Sheets</span>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="skripsiTable" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Penulis</th>
+                                        <th>Nama</th>
                                         <th>NIM</th>
                                         <th>Tahun</th>
                                         <th>Prodi</th>
                                         <th>Judul Skripsi</th>
                                         <th>Pembimbing</th>
+                                        <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -442,9 +433,7 @@
                                 <label class="form-label">Tahun</label>
                                 <select class="form-select">
                                     <option value="">Semua Tahun</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
+                                    <!-- Options akan diisi oleh JavaScript -->
                                 </select>
                             </div>
                         </div>
@@ -453,9 +442,7 @@
                                 <label class="form-label">Program Studi</label>
                                 <select class="form-select">
                                     <option value="">Semua Prodi</option>
-                                    <option value="ES">Ekonomi Syariah</option>
-                                    <option value="PS">Perbankan Syariah</option>
-                                    <option value="MBS">Manajemen Bisnis Syariah</option>
+                                    <!-- Options akan diisi oleh JavaScript -->
                                 </select>
                             </div>
                         </div>
@@ -464,9 +451,7 @@
                         <label class="form-label">Pembimbing</label>
                         <select class="form-select">
                             <option value="">Semua Pembimbing</option>
-                            <option value="1">Dr. Ahmad Surya, M.E.I.</option>
-                            <option value="2">Dr. Siti Aminah, M.Si.</option>
-                            <option value="3">Prof. Dr. Muhammad Ali, M.A.</option>
+                            <!-- Options akan diisi oleh JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -485,8 +470,9 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
     <script>
-        // URL Web App Google Apps Script - GANTI DENGAN URL ANDA
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzDK4lSlKKzU6NZzZEkDjNBSTv_ljAygUUdNoEPXegKlTH9nr6ZaCfNJAeHltSUhTA/exec';
+        // SheetDB API endpoint untuk Google Sheets
+        // Ganti dengan API endpoint Anda jika menggunakan layanan lain
+        const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0';
         
         // Inisialisasi saat dokumen siap
         $(document).ready(function() {
@@ -513,64 +499,57 @@
             
             // Event listener untuk refresh data
             $('#refreshData').click(function() {
-                refreshData();
+                fetchDataFromSheet();
             });
             
             // Event listener untuk filter
-            $('#yearFilter, #prodiFilter, #themeFilter, #supervisorFilter').change(function() {
+            $('#yearFilter, #prodiFilter, #pembimbingFilter, #statusFilter').change(function() {
                 applyFilters();
             });
             
             // Muat data awal
-            loadInitialData();
+            fetchDataFromSheet();
         });
         
-        // Fungsi untuk memuat data awal
-        function loadInitialData() {
+        // Fungsi untuk mengambil data dari Google Sheets
+        function fetchDataFromSheet() {
             showLoading();
             
-            // Simulasi pemuatan data
-            setTimeout(function() {
-                // Data statistik
-                document.getElementById('total-skripsi').textContent = '1,245';
-                document.getElementById('tahun-ini').textContent = '142';
-                document.getElementById('prodi-ekonomi').textContent = '586';
-                document.getElementById('peringatan-kesamaan').textContent = '18';
-                
-                // Data tabel
-                const sampleData = [
-                    {
-                        penulis: 'Ahmad Fauzi',
-                        nim: '2020111001',
-                        tahun: '2023',
-                        prodi: 'Ekonomi Syariah',
-                        judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
-                        pembimbing: 'Dr. Ahmad Surya, M.E.I.',
-                        link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
-                    },
-                    {
-                        penulis: 'Siti Rahayu',
-                        nim: '2020112056',
-                        tahun: '2023',
-                        prodi: 'Perbankan Syariah',
-                        judul: 'Pengaruh Kualitas Layanan terhadap Kepuasan Nasabah Bank Syariah',
-                        pembimbing: 'Dr. Siti Aminah, M.Si.',
-                        link: 'https://drive.google.com/file/d/2EXAMPLE_FILE_ID/view'
-                    },
-                    {
-                        penulis: 'Muhammad Ali',
-                        nim: '2020113078',
-                        tahun: '2022',
-                        prodi: 'Manajemen Bisnis Syariah',
-                        judul: 'Strategi Pemasaran Produk Halal dalam Era Digital',
-                        pembimbing: 'Prof. Dr. Muhammad Ali, M.A.',
-                        link: 'https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view'
+            // Menggunakan SheetDB.io untuk mengakses Google Sheets sebagai API
+            fetch(SHEETDB_API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                ];
-                
-                populateTable(sampleData);
-                hideLoading();
-            }, 1500);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Data received from Google Sheets:", data);
+                    window.skripsiData = data;
+                    processSheetData(data);
+                    hideLoading();
+                })
+                .catch(error => {
+                    console.error('Error fetching data from Google Sheets:', error);
+                    // Fallback: menggunakan data sampel jika API tidak tersedia
+                    useSampleData();
+                    hideLoading();
+                });
+        }
+        
+        // Fungsi untuk memproses data dari Google Sheets
+        function processSheetData(data) {
+            // Isi tabel dengan data
+            populateTable(data);
+            
+            // Update statistik
+            updateStatistics(data);
+            
+            // Isi dropdown filter
+            populateFilterDropdowns(data);
+            
+            // Update aktivitas terbaru
+            updateRecentActivity(data);
         }
         
         // Fungsi untuk menampilkan data dalam tabel
@@ -578,17 +557,34 @@
             const tbody = $('#skripsiTable tbody');
             tbody.empty();
             
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="8" class="text-center">Tidak ada data skripsi</td></tr>');
+                return;
+            }
+            
             data.forEach(item => {
+                // Sesuaikan dengan struktur kolom di Google Sheets Anda
+                const nama = item.nama || item.Nama || item.Mahasiswa || '';
+                const nim = item.nim || item.NIM || '';
+                const tahun = item.tahun || item.Tahun || '';
+                const prodi = item.prodi || item.Prodi || item['Program Studi'] || '';
+                const judul = item.judul || item.Judul || item['Judul Skripsi'] || '';
+                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
+                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
+                const status = item.status || item.Status || '';
+                const link = item.link || item.Link || item['Link File'] || '#';
+                
                 const row = `
                     <tr>
-                        <td>${item.penulis}</td>
-                        <td>${item.nim}</td>
-                        <td>${item.tahun}</td>
-                        <td>${item.prodi}</td>
-                        <td>${item.judul}</td>
-                        <td>${item.pembimbing}</td>
+                        <td>${nama}</td>
+                        <td>${nim}</td>
+                        <td>${tahun}</td>
+                        <td>${prodi}</td>
+                        <td>${judul}</td>
+                        <td>${pembimbing1} ${pembimbing2 ? '& ' + pembimbing2 : ''}</td>
+                        <td><span class="badge ${status === 'Lulus' ? 'bg-success' : 'bg-warning'}">${status}</span></td>
                         <td>
-                            <a href="${item.link}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-eye"></i> Lihat
                             </a>
                         </td>
@@ -598,125 +594,241 @@
             });
             
             // Refresh DataTables
-            $('#skripsiTable').DataTable().draw();
+            $('#skripsiTable').DataTable().destroy();
+            $('#skripsiTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
+                },
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]]
+            });
+        }
+        
+        // Fungsi untuk memperbarui statistik
+        function updateStatistics(data) {
+            const totalSkripsi = data.length;
+            const tahunIni = new Date().getFullYear();
+            const skripsiTahunIni = data.filter(item => {
+                const tahun = item.tahun || item.Tahun || '';
+                return tahun && tahun.toString() === tahunIni.toString();
+            }).length;
+            
+            const skripsiEkonomi = data.filter(item => {
+                const prodi = item.prodi || item.Prodi || '';
+                return prodi && prodi.toLowerCase().includes('ekonomi');
+            }).length;
+            
+            // Hitung peringatan kesamaan (contoh sederhana)
+            const peringatanKesamaan = data.filter(item => {
+                const judul = item.judul || item.Judul || '';
+                return judul && judul.toLowerCase().includes('murabahah');
+            }).length;
+            
+            document.getElementById('total-skripsi').textContent = totalSkripsi;
+            document.getElementById('tahun-ini').textContent = skripsiTahunIni;
+            document.getElementById('prodi-ekonomi').textContent = skripsiEkonomi;
+            document.getElementById('peringatan-kesamaan').textContent = peringatanKesamaan;
+        }
+        
+        // Fungsi untuk mengisi dropdown filter
+        function populateFilterDropdowns(data) {
+            // Tahun
+            const tahunSet = new Set();
+            data.forEach(item => {
+                const tahun = item.tahun || item.Tahun || '';
+                if (tahun) tahunSet.add(tahun);
+            });
+            const tahunOptions = Array.from(tahunSet).sort().reverse();
+            $('#yearFilter, #advancedSearchModal select:nth-child(1)').empty().append('<option value="">Semua Tahun</option>');
+            tahunOptions.forEach(tahun => {
+                $('#yearFilter, #advancedSearchModal select:nth-child(1)').append(`<option value="${tahun}">${tahun}</option>`);
+            });
+            
+            // Program Studi
+            const prodiSet = new Set();
+            data.forEach(item => {
+                const prodi = item.prodi || item.Prodi || '';
+                if (prodi) prodiSet.add(prodi);
+            });
+            $('#prodiFilter, #advancedSearchModal select:nth-child(2)').empty().append('<option value="">Semua Prodi</option>');
+            prodiSet.forEach(prodi => {
+                $('#prodiFilter, #advancedSearchModal select:nth-child(2)').append(`<option value="${prodi}">${prodi}</option>`);
+            });
+            
+            // Pembimbing
+            const pembimbingSet = new Set();
+            data.forEach(item => {
+                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
+                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
+                if (pembimbing1) pembimbingSet.add(pembimbing1);
+                if (pembimbing2) pembimbingSet.add(pembimbing2);
+            });
+            $('#pembimbingFilter, #advancedSearchModal select:nth-child(3)').empty().append('<option value="">Semua Pembimbing</option>');
+            pembimbingSet.forEach(pembimbing => {
+                $('#pembimbingFilter, #advancedSearchModal select:nth-child(3)').append(`<option value="${pembimbing}">${pembimbing}</option>`);
+            });
+        }
+        
+        // Fungsi untuk memperbarui aktivitas terbaru
+        function updateRecentActivity(data) {
+            const tbody = $('#recentActivityBody');
+            tbody.empty();
+            
+            // Ambil 5 data terbaru (asumsi data sudah terurut dari terbaru)
+            const recentData = data.slice(0, 5);
+            
+            if (recentData.length === 0) {
+                tbody.append('<tr><td colspan="4" class="text-center">Tidak ada aktivitas terbaru</td></tr>');
+                return;
+            }
+            
+            recentData.forEach(item => {
+                const nama = item.nama || item.Nama || '';
+                const nim = item.nim || item.NIM || '';
+                const status = item.status || item.Status || '';
+                const tanggal = item.tanggal || item.Tanggal || new Date().toLocaleDateString('id-ID');
+                
+                let aktivitas = 'Pengajuan judul skripsi';
+                if (status === 'Lulus') aktivitas = 'Telah menyelesaikan skripsi';
+                
+                const statusBadge = status === 'Lulus' ? 
+                    '<span class="badge bg-success">Selesai</span>' : 
+                    '<span class="badge bg-warning">Proses</span>';
+                
+                const row = `
+                    <tr>
+                        <td>${tanggal}</td>
+                        <td>${nama} (${nim})</td>
+                        <td>${aktivitas}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
         }
         
         // Fungsi untuk mencari skripsi
         function searchSkripsi(keyword) {
-            showLoading();
+            if (!window.skripsiData) {
+                alert('Data belum dimuat');
+                return;
+            }
             
-            // Simulasi pencarian
-            setTimeout(function() {
-                // Peringatan kesamaan untuk kata kunci tertentu
-                if (keyword.toLowerCase().includes('murabahah')) {
-                    $('#similarityWarning').show();
-                    $('#warningText').text('Peringatan: Judul yang diajukan mirip dengan skripsi tahun 2022 (NIM 2020111001). Harap modifikasi judul.');
-                } else {
-                    $('#similarityWarning').hide();
-                }
-                
-                // Hasil pencarian
-                const searchData = [
-                    {
-                        penulis: 'Ahmad Fauzi',
-                        nim: '2020111001',
-                        tahun: '2023',
-                        prodi: 'Ekonomi Syariah',
-                        judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
-                        pembimbing: 'Dr. Ahmad Surya, M.E.I.',
-                        link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
-                    }
-                ];
-                
-                populateTable(searchData);
-                hideLoading();
-                
-                // Scroll ke tabel
-                $('html, body').animate({
-                    scrollTop: $('#skripsiTable').offset().top - 20
-                }, 500);
-            }, 1000);
+            const filteredData = window.skripsiData.filter(item => {
+                const judul = item.judul || item.Judul || '';
+                const abstrak = item.abstrak || item.Abstrak || '';
+                return judul.toLowerCase().includes(keyword.toLowerCase()) || 
+                       abstrak.toLowerCase().includes(keyword.toLowerCase());
+            });
+            
+            populateTable(filteredData);
+            
+            // Tampilkan peringatan jika ada kemiripan
+            if (filteredData.length > 0 && keyword.toLowerCase().includes('murabahah')) {
+                $('#similarityWarning').show();
+                $('#warningText').text(`Peringatan: Ditemukan ${filteredData.length} skripsi dengan judul mirip.`);
+            } else {
+                $('#similarityWarning').hide();
+            }
         }
         
         // Fungsi untuk menerapkan filter
         function applyFilters() {
-            const tahun = $('#yearFilter').val();
-            const prodi = $('#prodiFilter').val();
-            
-            if (tahun || prodi) {
-                showLoading();
-                
-                // Simulasi filter
-                setTimeout(function() {
-                    const filteredData = [
-                        {
-                            penulis: 'Ahmad Fauzi',
-                            nim: '2020111001',
-                            tahun: '2023',
-                            prodi: 'Ekonomi Syariah',
-                            judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
-                            pembimbing: 'Dr. Ahmad Surya, M.E.I.',
-                            link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
-                        }
-                    ];
-                    
-                    populateTable(filteredData);
-                    hideLoading();
-                }, 800);
+            if (!window.skripsiData) {
+                alert('Data belum dimuat');
+                return;
             }
+
+            const tahunValue = $('#yearFilter').val();
+            const prodiValue = $('#prodiFilter').val();
+            const pembimbingValue = $('#pembimbingFilter').val();
+            const statusValue = $('#statusFilter').val();
+
+            let filteredData = window.skripsiData;
+
+            if (tahunValue) {
+                filteredData = filteredData.filter(item => {
+                    const tahun = item.tahun || item.Tahun || '';
+                    return tahun.toString() === tahunValue;
+                });
+            }
+
+            if (prodiValue) {
+                filteredData = filteredData.filter(item => {
+                    const prodi = item.prodi || item.Prodi || '';
+                    return prodi === prodiValue;
+                });
+            }
+
+            if (pembimbingValue) {
+                filteredData = filteredData.filter(item => {
+                    const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
+                    const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
+                    return pembimbing1 === pembimbingValue || pembimbing2 === pembimbingValue;
+                });
+            }
+
+            if (statusValue) {
+                filteredData = filteredData.filter(item => {
+                    const status = item.status || item.Status || '';
+                    return status === statusValue;
+                });
+            }
+
+            populateTable(filteredData);
         }
         
-        // Fungsi untuk refresh data
-        function refreshData() {
-            showLoading();
+        // Fungsi untuk menggunakan data sampel (jika API tidak tersedia)
+        function useSampleData() {
+            console.log("Using sample data");
+            const sampleData = [
+                {
+                    nama: 'Ahmad Fauzi',
+                    nim: '2020111001',
+                    tahun: '2023',
+                    prodi: 'Ekonomi Syariah',
+                    judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
+                    pembimbing1: 'Dr. Ahmad Surya, M.E.I.',
+                    pembimbing2: 'Dr. Siti Aminah, M.Si.',
+                    status: 'Lulus',
+                    link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
+                },
+                {
+                    nama: 'Siti Rahayu',
+                    nim: '2020112056',
+                    tahun: '2023',
+                    prodi: 'Perbankan Syariah',
+                    judul: 'Pengaruh Kualitas Layanan terhadap Kepuasan Nasabah Bank Syariah',
+                    pembimbing1: 'Dr. Siti Aminah, M.Si.',
+                    status: 'Proses',
+                    link: 'https://drive.google.com/file/d/2EXAMPLE_FILE_ID/view'
+                },
+                {
+                    nama: 'Muhammad Ali',
+                    nim: '2020113078',
+                    tahun: '2022',
+                    prodi: 'Manajemen Bisnis Syariah',
+                    judul: 'Strategi Pemasaran Produk Halal dalam Era Digital',
+                    pembimbing1: 'Prof. Dr. Muhammad Ali, M.A.',
+                    status: 'Lulus',
+                    link: 'https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view'
+                }
+            ];
             
-            // Simulasi refresh
-            setTimeout(function() {
-                loadInitialData();
-                alert('Data berhasil diperbarui');
-            }, 1500);
+            window.skripsiData = sampleData;
+            processSheetData(sampleData);
+            alert('Menggunakan data sampel karena tidak dapat terhubung ke Google Sheets. Pastikan Anda telah mengonfigurasi akses API dengan benar.');
         }
         
         // Fungsi untuk menampilkan loading
         function showLoading() {
             $('#loadingIndicator').show();
+            $('#skripsiTable tbody').html('<tr><td colspan="8" class="text-center">Memuat data...</td></tr>');
         }
         
         // Fungsi untuk menyembunyikan loading
         function hideLoading() {
             $('#loadingIndicator').hide();
-        }
-        
-        // Fungsi untuk integrasi dengan Google Apps Script Web App
-        function fetchFromWebApp(action, params = {}) {
-            showLoading();
-            
-            const queryParams = new URLSearchParams(params);
-            queryParams.set('action', action);
-            
-            fetch(`${WEB_APP_URL}?${queryParams}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (action === 'getSkripsi') {
-                        populateTable(data);
-                    } else if (action === 'getStatistics') {
-                        updateStatistics(data);
-                    }
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    alert('Gagal memuat data dari server');
-                    hideLoading();
-                });
-        }
-        
-        // Fungsi untuk memperbarui statistik
-        function updateStatistics(data) {
-            document.getElementById('total-skripsi').textContent = data.total_skripsi || '0';
-            document.getElementById('tahun-ini').textContent = data.skripsi_tahun_ini || '0';
-            document.getElementById('prodi-ekonomi').textContent = data.skripsi_ekonomi || '0';
-            document.getElementById('peringatan-kesamaan').textContent = data.peringatan_kesamaan || '0';
         }
     </script>
 </body>
