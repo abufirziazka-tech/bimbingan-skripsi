@@ -32,6 +32,8 @@
             height: 100vh;
             position: fixed;
             padding-top: 20px;
+            z-index: 1000;
+            transition: all 0.3s;
         }
         
         .sidebar .nav-link {
@@ -39,6 +41,7 @@
             padding: 12px 20px;
             margin: 4px 0;
             border-radius: 4px;
+            transition: all 0.3s;
         }
         
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
@@ -55,6 +58,7 @@
         .main-content {
             margin-left: 250px;
             padding: 20px;
+            transition: all 0.3s;
         }
         
         .dashboard-card {
@@ -174,47 +178,119 @@
             border-radius: 8px;
             border-left: 4px solid #34A853;
         }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .mobile-header {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            z-index: 999;
+        }
+        
+        .mobile-header h4 {
+            margin: 0;
+        }
+        
+        #sidebarToggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .external-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            
+            .sidebar.active {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .main-content {
+                padding-top: 80px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile Header -->
+    <div class="mobile-header d-md-none">
+        <button id="sidebarToggle"><i class="fas fa-bars"></i></button>
+        <h4>Dashboard Skripsi</h4>
+        <div></div> <!-- For alignment -->
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-2 sidebar d-none d-md-block">
-                <h4 class="text-center mb-4">Dashboard Skripsi</h4>
+            <div class="col-md-2 sidebar">
+                <h4 class="text-center mb-4 d-none d-md-block">Dashboard Skripsi</h4>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link menu-item" href="#" data-target="dashboard">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link menu-item" href="https://drive.google.com/drive/folders/1EXAMPLE_BIMBINGAN_FOLDER" target="_blank">
                             <i class="fas fa-tasks"></i> Data Bimbingan
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link menu-item" href="https://drive.google.com/drive/folders/1EXAMPLE_SKRIPSI_FINAL_FOLDER" target="_blank">
                             <i class="fas fa-graduation-cap"></i> Skripsi Final
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link menu-item" href="https://docs.google.com/spreadsheets/d/1EXAMPLE_EARLY_WARNING_SHEET/edit" target="_blank">
                             <i class="fas fa-exclamation-triangle"></i> Early Warning
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link menu-item active" href="#" data-target="database">
                             <i class="fas fa-database"></i> Database Skripsi
                         </a>
                     </li>
                     <li class="nav-item mt-4">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link menu-item" href="https://docs.google.com/forms/d/1EXAMPLE_PENGATURAN_FORM" target="_blank">
                             <i class="fas fa-cog"></i> Pengaturan
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="#" id="logoutBtn">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
                     </li>
@@ -223,287 +299,471 @@
 
             <!-- Main Content -->
             <div class="col-md-10 main-content">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Database Skripsi - Repository Digital</h2>
-                    <div>
-                        <button class="btn btn-outline-secondary me-2" id="refreshData"><i class="fas fa-sync-alt"></i></button>
-                        <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Ajukan Judul via Google Form
+                <!-- Dashboard Section -->
+                <div class="content-section" id="dashboard">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Dashboard Utama</h2>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2"><i class="fas fa-sync-alt"></i></button>
+                            <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Ajukan Judul via Google Form
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Total Skripsi</h6>
+                                            <p class="stat-number">1,245</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Tahun Ini</h6>
+                                            <p class="stat-number">142</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Prodi Ekonomi Syariah</h6>
+                                            <p class="stat-number">586</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card warning-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Peringatan Kesamaan</h6>
+                                            <p class="stat-number">18</p>
+                                        </div>
+                                        <div class="card-icon warning-icon">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="card-title mb-0"><i class="fas fa-link me-2"></i>Tautan Cepat</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://drive.google.com/drive/folders/1EXAMPLE_BIMBINGAN_FOLDER" target="_blank" class="btn btn-outline-primary w-100 external-link-btn">
+                                                <i class="fas fa-tasks me-2"></i> Data Bimbingan
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://drive.google.com/drive/folders/1EXAMPLE_SKRIPSI_FINAL_FOLDER" target="_blank" class="btn btn-outline-success w-100 external-link-btn">
+                                                <i class="fas fa-graduation-cap me-2"></i> Skripsi Final
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://docs.google.com/spreadsheets/d/1EXAMPLE_EARLY_WARNING_SHEET/edit" target="_blank" class="btn btn-outline-warning w-100 external-link-btn">
+                                                <i class="fas fa-exclamation-triangle me-2"></i> Early Warning
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://drive.google.com/drive/folders/1EXAMPLE_DATABASE_FOLDER" target="_blank" class="btn btn-outline-info w-100 external-link-btn">
+                                                <i class="fas fa-database me-2"></i> Database Skripsi
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://docs.google.com/forms/d/1EXAMPLE_PENGATURAN_FORM" target="_blank" class="btn btn-outline-secondary w-100 external-link-btn">
+                                                <i class="fas fa-cog me-2"></i> Pengaturan
+                                            </a>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-outline-danger w-100 external-link-btn">
+                                                <i class="fas fa-plus me-2"></i> Ajukan Judul
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="table-container mb-4">
+                        <h4 class="mb-3"><i class="fas fa-history me-2"></i>Aktivitas Terbaru</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Mahasiswa</th>
+                                        <th>Aktivitas</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>12 Apr 2023</td>
+                                        <td>Ahmad Fauzi (2020111001)</td>
+                                        <td>Pengajuan judul skripsi</td>
+                                        <td><span class="badge bg-warning">Menunggu</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>11 Apr 2023</td>
+                                        <td>Siti Rahayu (2020112056)</td>
+                                        <td>Upload bab 1 revisi</td>
+                                        <td><span class="badge bg-success">Selesai</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10 Apr 2023</td>
+                                        <td>Muhammad Ali (2020113078)</td>
+                                        <td>Bimbingan proposal</td>
+                                        <td><span class="badge bg-info">Proses</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>09 Apr 2023</td>
+                                        <td>Dewi Kusuma (2020111095)</td>
+                                        <td>Pengajuan seminar hasil</td>
+                                        <td><span class="badge bg-success">Disetujui</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5 class="mb-3">Trend Topik Skripsi per Tahun</h5>
+                                <canvas id="topicsChart" height="250"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5 class="mb-3">Distribusi Prodi</h5>
+                                <canvas id="prodiChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Skripsi Section -->
+                <div class="content-section active" id="database">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Database Skripsi - Repository Digital</h2>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2" id="refreshData"><i class="fas fa-sync-alt"></i></button>
+                            <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Ajukan Judul via Google Form
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Google Form Link -->
+                    <div class="google-form-link">
+                        <h5><i class="fab fa-google me-2"></i>Pengajuan Judul Skripsi</h5>
+                        <p>Gunakan Google Form berikut untuk mengajukan judul skripsi baru:</p>
+                        <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-outline-success">
+                            <i class="fab fa-google me-1"></i> Buka Google Form
                         </a>
                     </div>
-                </div>
 
-                <!-- Google Form Link -->
-                <div class="google-form-link">
-                    <h5><i class="fab fa-google me-2"></i>Pengajuan Judul Skripsi</h5>
-                    <p>Gunakan Google Form berikut untuk mengajukan judul skripsi baru:</p>
-                    <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-outline-success">
-                        <i class="fab fa-google me-1"></i> Buka Google Form
-                    </a>
-                </div>
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Total Skripsi</h6>
+                                            <p class="stat-number">1,245</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Tahun Ini</h6>
+                                            <p class="stat-number">142</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Prodi Ekonomi Syariah</h6>
+                                            <p class="stat-number">586</p>
+                                        </div>
+                                        <div class="card-icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card warning-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Peringatan Kesamaan</h6>
+                                            <p class="stat-number">18</p>
+                                        </div>
+                                        <div class="card-icon warning-icon">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Stats Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h6 class="card-title">Total Skripsi</h6>
-                                        <p class="stat-number">1,245</p>
-                                    </div>
-                                    <div class="card-icon">
-                                        <i class="fas fa-book"></i>
-                                    </div>
+                    <!-- Search Section -->
+                    <div class="search-container mb-4">
+                        <h4 class="mb-3"><i class="fas fa-search me-2"></i>Cari Judul Skripsi</h4>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="Masukkan kata kunci (contoh: pembiayaan murabahah, perilaku konsumen halal)" id="searchInput">
+                                    <button class="btn btn-primary" type="button" id="searchButton">
+                                        <i class="fas fa-search"></i> Cari
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h6 class="card-title">Tahun Ini</h6>
-                                        <p class="stat-number">142</p>
-                                    </div>
-                                    <div class="card-icon">
-                                        <i class="fas fa-calendar-alt"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card dashboard-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h6 class="card-title">Prodi Ekonomi Syariah</h6>
-                                        <p class="stat-number">586</p>
-                                    </div>
-                                    <div class="card-icon">
-                                        <i class="fas fa-university"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card dashboard-card warning-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h6 class="card-title">Peringatan Kesamaan</h6>
-                                        <p class="stat-number">18</p>
-                                    </div>
-                                    <div class="card-icon warning-icon">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search Section -->
-                <div class="search-container mb-4">
-                    <h4 class="mb-3"><i class="fas fa-search me-2"></i>Cari Judul Skripsi</h4>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Masukkan kata kunci (contoh: pembiayaan murabahah, perilaku konsumen halal)" id="searchInput">
-                                <button class="btn btn-primary" type="button" id="searchButton">
-                                    <i class="fas fa-search"></i> Cari
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
+                                    <i class="fas fa-sliders-h"></i> Pencarian Lanjutan
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
-                                <i class="fas fa-sliders-h"></i> Pencarian Lanjutan
-                            </button>
+                        
+                        <div class="similarity-warning" id="similarityWarning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span>Peringatan: Judul yang diajukan mirip dengan skripsi tahun 2022 (NIM 2020111001). Harap modifikasi judul.</span>
                         </div>
                     </div>
-                    
-                    <div class="similarity-warning" id="similarityWarning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <span>Peringatan: Judul yang diajukan mirip dengan skripsi tahun 2022 (NIM 2020111001). Harap modifikasi judul.</span>
-                    </div>
-                </div>
 
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filter Data</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Tahun Lulus</label>
-                                <select class="form-select" id="yearFilter">
-                                    <option value="">Semua Tahun</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
-                                </select>
+                    <!-- Filter Section -->
+                    <div class="filter-section">
+                        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filter Data</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Tahun Lulus</label>
+                                    <select class="form-select" id="yearFilter">
+                                        <option value="">Semua Tahun</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2022">2022</option>
+                                        <option value="2021">2021</option>
+                                        <option value="2020">2020</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Program Studi</label>
-                                <select class="form-select" id="prodiFilter">
-                                    <option value="">Semua Prodi</option>
-                                    <option value="ES">Ekonomi Syariah</option>
-                                    <option value="PS">Perbankan Syariah</option>
-                                    <option value="MBS">Manajemen Bisnis Syariah</option>
-                                </select>
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Program Studi</label>
+                                    <select class="form-select" id="prodiFilter">
+                                        <option value="">Semua Prodi</option>
+                                        <option value="ES">Ekonomi Syariah</option>
+                                        <option value="PS">Perbankan Syariah</option>
+                                        <option value="MBS">Manajemen Bisnis Syariah</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Tema Penelitian</label>
-                                <select class="form-select" id="themeFilter">
-                                    <option value="">Semua Tema</option>
-                                    <option value="keuangan">Keuangan Syariah</option>
-                                    <option value="perbankan">Perbankan Syariah</option>
-                                    <option value="manajemen">Manajemen</option>
-                                    <option value="fiqh">Fiqh Muamalah</option>
-                                </select>
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Tema Penelitian</label>
+                                    <select class="form-select" id="themeFilter">
+                                        <option value="">Semua Tema</option>
+                                        <option value="keuangan">Keuangan Syariah</option>
+                                        <option value="perbankan">Perbankan Syariah</option>
+                                        <option value="manajemen">Manajemen</option>
+                                        <option value="fiqh">Fiqh Muamalah</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Pembimbing</label>
-                                <select class="form-select" id="supervisorFilter">
-                                    <option value="">Semua Pembimbing</option>
-                                    <option value="1">Dr. Ahmad Surya, M.E.I.</option>
-                                    <option value="2">Dr. Siti Aminah, M.Si.</option>
-                                    <option value="3">Prof. Dr. Muhammad Ali, M.A.</option>
-                                </select>
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label class="form-label">Pembimbing</label>
+                                    <select class="form-select" id="supervisorFilter">
+                                        <option value="">Semua Pembimbing</option>
+                                        <option value="1">Dr. Ahmad Surya, M.E.I.</option>
+                                        <option value="2">Dr. Siti Aminah, M.Si.</option>
+                                        <option value="3">Prof. Dr. Muhammad Ali, M.A.</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Charts Row -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <h5 class="mb-3">Trend Topik Skripsi per Tahun</h5>
-                            <canvas id="topicsChart" height="250"></canvas>
+                    <!-- Charts Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5 class="mb-3">Trend Topik Skripsi per Tahun</h5>
+                                <canvas id="topicsChartDb" height="250"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5 class="mb-3">Distribusi Prodi</h5>
+                                <canvas id="prodiChartDb" height="250"></canvas>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <h5 class="mb-3">Distribusi Prodi</h5>
-                            <canvas id="prodiChart" height="250"></canvas>
+
+                    <!-- Word Cloud -->
+                    <div class="chart-container mb-4">
+                        <h5 class="mb-3">Kata Kunci Populer dalam Judul Skripsi</h5>
+                        <div class="word-cloud">
+                            <span style="font-size: 24px;">Murabahah</span>
+                            <span style="font-size: 28px;">Fintech</span>
+                            <span style="font-size: 20px;">Sukuk</span>
+                            <span style="font-size: 26px;">Bank Syariah</span>
+                            <span style="font-size: 22px;">Halal</span>
+                            <span style="font-size: 18px;">Zakat</span>
+                            <span style="font-size: 24px;">Investasi</span>
+                            <span style="font-size: 20px;">Wakaf</span>
+                            <span style="font-size: 26px;">Konsumen</span>
+                            <span style="font-size: 22px;">Digital</span>
+                            <span style="font-size: 18px;">Umrah</span>
+                            <span style="font-size: 24px;">Ekonomi Islam</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Word Cloud -->
-                <div class="chart-container mb-4">
-                    <h5 class="mb-3">Kata Kunci Populer dalam Judul Skripsi</h5>
-                    <div class="word-cloud">
-                        <span style="font-size: 24px;">Murabahah</span>
-                        <span style="font-size: 28px;">Fintech</span>
-                        <span style="font-size: 20px;">Sukuk</span>
-                        <span style="font-size: 26px;">Bank Syariah</span>
-                        <span style="font-size: 22px;">Halal</span>
-                        <span style="font-size: 18px;">Zakat</span>
-                        <span style="font-size: 24px;">Investasi</span>
-                        <span style="font-size: 20px;">Wakaf</span>
-                        <span style="font-size: 26px;">Konsumen</span>
-                        <span style="font-size: 22px;">Digital</span>
-                        <span style="font-size: 18px;">Umrah</span>
-                        <span style="font-size: 24px;">Ekonomi Islam</span>
+                    <!-- Table Section -->
+                    <div class="table-container">
+                        <h4 class="mb-3"><i class="fas fa-list me-2"></i>Katalog Skripsi Digital 
+                            <span class="google-drive-badge">Google Drive</span>
+                        </h4>
+                        <table id="skripsiTable" class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Penulis</th>
+                                    <th>NIM</th>
+                                    <th>Tahun</th>
+                                    <th>Prodi</th>
+                                    <th>Judul Skripsi</th>
+                                    <th>Pembimbing</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ahmad Fauzi</td>
+                                    <td>2020111001</td>
+                                    <td>2023</td>
+                                    <td>Ekonomi Syariah</td>
+                                    <td>Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri</td>
+                                    <td>Dr. Ahmad Surya, M.E.I.</td>
+                                    <td>
+                                        <a href="https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Siti Rahayu</td>
+                                    <td>2020112056</td>
+                                    <td>2023</td>
+                                    <td>Perbankan Syariah</td>
+                                    <td>Pengaruh Kualitas Layanan terhadap Kepuasan Nasabah Bank Syariah</td>
+                                    <td>Dr. Siti Aminah, M.Si.</td>
+                                    <td>
+                                        <a href="https://drive.google.com/file/d/2EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Muhammad Ali</td>
+                                    <td>2020113078</td>
+                                    <td>2022</td>
+                                    <td>Manajemen Bisnis Syariah</td>
+                                    <td>Strategi Pemasaran Produk Halal dalam Era Digital</td>
+                                    <td>Prof. Dr. Muhammad Ali, M.A.</td>
+                                    <td>
+                                        <a href="https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Dewi Kusuma</td>
+                                    <td>2020111095</td>
+                                    <td>2022</td>
+                                    <td>Ekonomi Syariah</td>
+                                    <td>Dampak Fintech Syariah terhadap Inklusi Keuangan di Indonesia</td>
+                                    <td>Dr. Ahmad Surya, M.E.I.</td>
+                                    <td>
+                                        <a href="https://drive.google.com/file/d/4EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Rudi Hermawan</td>
+                                    <td>2020112087</td>
+                                    <td>2021</td>
+                                    <td>Perbankan Syariah</td>
+                                    <td>Analisis Perbandingan Kinerja Bank Syariah dan Bank Konvensional</td>
+                                    <td>Dr. Siti Aminah, M.Si.</td>
+                                    <td>
+                                        <a href="https://drive.google.com/file/d/5EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-
-                <!-- Table Section -->
-                <div class="table-container">
-                    <h4 class="mb-3"><i class="fas fa-list me-2"></i>Katalog Skripsi Digital 
-                        <span class="google-drive-badge">Google Drive</span>
-                    </h4>
-                    <table id="skripsiTable" class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Penulis</th>
-                                <th>NIM</th>
-                                <th>Tahun</th>
-                                <th>Prodi</th>
-                                <th>Judul Skripsi</th>
-                                <th>Pembimbing</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Ahmad Fauzi</td>
-                                <td>2020111001</td>
-                                <td>2023</td>
-                                <td>Ekonomi Syariah</td>
-                                <td>Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri</td>
-                                <td>Dr. Ahmad Surya, M.E.I.</td>
-                                <td>
-                                    <a href="https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Siti Rahayu</td>
-                                <td>2020112056</td>
-                                <td>2023</td>
-                                <td>Perbankan Syariah</td>
-                                <td>Pengaruh Kualitas Layanan terhadap Kepuasan Nasabah Bank Syariah</td>
-                                <td>Dr. Siti Aminah, M.Si.</td>
-                                <td>
-                                    <a href="https://drive.google.com/file/d/2EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Muhammad Ali</td>
-                                <td>2020113078</td>
-                                <td>2022</td>
-                                <td>Manajemen Bisnis Syariah</td>
-                                <td>Strategi Pemasaran Produk Halal dalam Era Digital</td>
-                                <td>Prof. Dr. Muhammad Ali, M.A.</td>
-                                <td>
-                                    <a href="https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Dewi Kusuma</td>
-                                <td>2020111095</td>
-                                <td>2022</td>
-                                <td>Ekonomi Syariah</td>
-                                <td>Dampak Fintech Syariah terhadap Inklusi Keuangan di Indonesia</td>
-                                <td>Dr. Ahmad Surya, M.E.I.</td>
-                                <td>
-                                    <a href="https://drive.google.com/file/d/4EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Rudi Hermawan</td>
-                                <td>2020112087</td>
-                                <td>2021</td>
-                                <td>Perbankan Syariah</td>
-                                <td>Analisis Perbandingan Kinerja Bank Syariah dan Bank Konvensional</td>
-                                <td>Dr. Siti Aminah, M.Si.</td>
-                                <td>
-                                    <a href="https://drive.google.com/file/d/5EXAMPLE_FILE_ID/view" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -568,6 +828,25 @@
         </div>
     </div>
 
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Konfirmasi Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin keluar dari sistem?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <a href="https://accounts.google.com/Logout" class="btn btn-primary">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -587,7 +866,6 @@
             
             // Filter functionality
             $('#yearFilter, #prodiFilter, #themeFilter, #supervisorFilter').change(function() {
-                // In a real application, this would filter the table
                 filterTable();
             });
             
@@ -595,7 +873,6 @@
             $('#searchButton').click(function() {
                 const searchTerm = $('#searchInput').val();
                 if (searchTerm.length > 0) {
-                    // In a real application, this would search the database
                     searchSkripsi(searchTerm);
                     
                     // Show similarity warning for demonstration
@@ -608,6 +885,42 @@
             // Refresh data from Google Drive
             $('#refreshData').click(function() {
                 refreshFromGoogleDrive();
+            });
+            
+            // Menu navigation
+            $('.menu-item').click(function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all menu items
+                $('.menu-item').removeClass('active');
+                
+                // Add active class to clicked menu item
+                $(this).addClass('active');
+                
+                // Hide all content sections
+                $('.content-section').removeClass('active');
+                
+                // Show the target content section if it exists
+                const target = $(this).data('target');
+                if (target) {
+                    $('#' + target).addClass('active');
+                }
+                
+                // If on mobile, close sidebar after selection
+                if ($(window).width() < 768) {
+                    $('.sidebar').removeClass('active');
+                }
+            });
+            
+            // Mobile sidebar toggle
+            $('#sidebarToggle').click(function() {
+                $('.sidebar').toggleClass('active');
+            });
+            
+            // Logout button
+            $('#logoutBtn').click(function(e) {
+                e.preventDefault();
+                $('#logoutModal').modal('show');
             });
         });
         
@@ -652,7 +965,7 @@
             }, 1500);
         }
         
-        // Charts
+        // Charts for Dashboard
         const topicsCtx = document.getElementById('topicsChart').getContext('2d');
         const topicsChart = new Chart(topicsCtx, {
             type: 'line',
@@ -720,14 +1033,73 @@
             }
         });
         
-        // Simulate loading data from Google Form
-        function loadGoogleFormData() {
-            // In a real application, this would fetch data from Google Forms API
-            console.log('Loading data from Google Form...');
-        }
+        // Charts for Database Section
+        const topicsCtxDb = document.getElementById('topicsChartDb').getContext('2d');
+        const topicsChartDb = new Chart(topicsCtxDb, {
+            type: 'line',
+            data: {
+                labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                datasets: [
+                    {
+                        label: 'Keuangan Syariah',
+                        data: [12, 15, 18, 22, 28, 35],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Perbankan Syariah',
+                        data: [20, 22, 25, 24, 26, 30],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Manajemen',
+                        data: [15, 18, 20, 22, 25, 28],
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
         
-        // Initialize
-        loadGoogleFormData();
+        const prodiCtxDb = document.getElementById('prodiChartDb').getContext('2d');
+        const prodiChartDb = new Chart(prodiCtxDb, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
+                datasets: [{
+                    data: [586, 412, 247],
+                    backgroundColor: [
+                        '#3498db',
+                        '#e74c3c',
+                        '#2ecc71'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
