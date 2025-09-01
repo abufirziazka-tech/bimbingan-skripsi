@@ -167,7 +167,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1><i class="fas fa-database me-2"></i>Dashboard Skripsi - Repository Digital</h1>
-                    <p class="mb-0">Sistem Manajemen Data Skripsi Terintegrasi Google Sheets</p>
+                    <p class="mb-0">Sistem Manajemen Data Skripsi Terintegrasi Google Apps Script</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <button class="btn btn-light me-2" id="refreshData"><i class="fas fa-sync-alt"></i> Refresh</button>
@@ -180,12 +180,8 @@
 
         <!-- Info Sheet -->
         <div class="alert alert-info">
-            <h5><i class="fas fa-info-circle me-2"></i>Data bersumber dari Google Sheets</h5>
-            <p class="mb-0">Dashboard ini terhubung langsung dengan: 
-                <a href="https://docs.google.com/spreadsheets/d/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/edit#gid=1502288531" target="_blank">
-                    https://docs.google.com/spreadsheets/d/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0
-                </a>
-            </p>
+            <h5><i class="fas fa-info-circle me-2"></i>Data bersumber dari Google Sheets via Apps Script</h5>
+            <p class="mb-0">Dashboard ini terhubung langsung dengan Google Sheets menggunakan Google Apps Script API</p>
         </div>
 
         <!-- Navigation Tabs -->
@@ -688,11 +684,8 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
     <script>
-        // SheetDB API endpoint untuk Google Sheets
-        const SKRIPSI_SHEET_URL = 'https://sheetdb.io/api/v1/l7vzqzsyvspe5';
-        const BIMBINGAN_SHEET_URL = 'https://sheetdb.io/api/v1/1EXAMPLE_BIMBINGAN_SHEET';
-        const SKRIPSI_FINAL_SHEET_URL = 'https://sheetdb.io/api/v1/1EXAMPLE_SKRIPSI_FINAL_SHEET';
-        const EARLY_WARNING_SHEET_URL = 'https://sheetdb.io/api/v1/1EXAMPLE_EARLY_WARNING_SHEET';
+        // Google Apps Script Web App URL - GANTI DENGAN URL ANDA
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/APP_ID/exec';
         
         // Inisialisasi saat dokumen siap
         $(document).ready(function() {
@@ -756,18 +749,12 @@
             fetchEarlyWarningData();
         });
         
-        // Fungsi untuk mengambil data dari Google Sheets
+        // Fungsi untuk mengambil data dari Google Sheets via Google Apps Script
         function fetchDataFromSheet() {
             showLoading();
             
-            // Menggunakan SheetDB.io untuk mengakses Google Sheets sebagai API
-            fetch(SKRIPSI_SHEET_URL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+            fetch(`${GAS_WEB_APP_URL}?action=getSkripsi`)
+                .then(response => response.json())
                 .then(data => {
                     console.log("Data received from Google Sheets:", data);
                     window.skripsiData = data;
@@ -776,7 +763,6 @@
                 })
                 .catch(error => {
                     console.error('Error fetching data from Google Sheets:', error);
-                    // Fallback: menggunakan data sampel jika API tidak tersedia
                     useSampleSkripsiData();
                     hideLoading();
                 });
@@ -786,7 +772,7 @@
         function fetchBimbinganData() {
             showLoading();
             
-            fetch(BIMBINGAN_SHEET_URL)
+            fetch(`${GAS_WEB_APP_URL}?action=getBimbingan`)
                 .then(response => response.json())
                 .then(data => {
                     window.bimbinganData = data;
@@ -804,7 +790,7 @@
         function fetchSkripsiFinalData() {
             showLoading();
             
-            fetch(SKRIPSI_FINAL_SHEET_URL)
+            fetch(`${GAS_WEB_APP_URL}?action=getSkripsiFinal`)
                 .then(response => response.json())
                 .then(data => {
                     window.skripsiFinalData = data;
@@ -822,7 +808,7 @@
         function fetchEarlyWarningData() {
             showLoading();
             
-            fetch(EARLY_WARNING_SHEET_URL)
+            fetch(`${GAS_WEB_APP_URL}?action=getEarlyWarning`)
                 .then(response => response.json())
                 .then(data => {
                     window.warningData = data;
@@ -1579,4 +1565,3 @@
     </script>
 </body>
 </html>
-
