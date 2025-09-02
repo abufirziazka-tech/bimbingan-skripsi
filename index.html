@@ -3,1565 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Skripsi - Repository Digital</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <title>Dashboard Skripsi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --background: #f0f2f5;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            padding: 20px;
+            background-color: var(--background);
+            color: #333;
+            line-height: 1.6;
         }
         
-        .dashboard-header {
-            background-color: var(--primary-color);
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 1.2rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .stat-info h3 {
-            margin: 0;
-            font-size: 14px;
-            color: #6c757d;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
-        .stat-number {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--dark-color);
-            margin: 5px 0 0 0;
+        .logo i {
+            font-size: 2rem;
         }
         
-        .stat-icon {
-            font-size: 40px;
-            color: var(--secondary-color);
+        .logo h1 {
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+        
+        .last-update {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .tab {
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .tab:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .tab i {
+            margin-right: 8px;
+        }
+        
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
         
         .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
         }
         
         .card-header {
-            background-color: white;
-            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
             font-weight: 600;
-            padding: 15px 20px;
-            border-radius: 10px 10px 0 0 !important;
+            color: #444;
         }
         
-        .google-drive-badge {
-            background-color: #4285F4;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 10px;
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
         
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
+        .bg-primary {
+            background-color: rgba(67, 97, 238, 0.15);
+            color: var(--primary);
         }
         
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
+        .bg-success {
+            background-color: rgba(76, 201, 240, 0.15);
+            color: var(--success);
         }
         
-        .search-box {
-            padding: 20px;
+        .bg-warning {
+            background-color: rgba(248, 150, 30, 0.15);
+            color: var(--warning);
+        }
+        
+        .bg-danger {
+            background-color: rgba(247, 37, 133, 0.15);
+            color: var(--danger);
+        }
+        
+        .card-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-description {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
             background: white;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
         }
         
-        .filter-section {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        #similarityWarning {
-            display: none;
-            margin-top: 15px;
-        }
-        
-        .content-section {
-            display: none;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
-        .nav-tabs .nav-link.active {
-            color: var(--secondary-color);
+        .chart-title {
+            font-size: 1.3rem;
             font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        #loadingIndicator {
-            display: none;
-            text-align: center;
-            padding: 20px;
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
         }
         
-        .alert-info {
-            border-left: 4px solid #17a2b8;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
         }
         
         .progress {
-            height: 10px;
+            height: 100%;
+            border-radius: 4px;
         }
         
-        .warning-badge {
-            background-color: #ffc107;
-            color: #000;
+        .high {
+            background-color: #4cc9f0;
         }
         
-        .danger-badge {
-            background-color: #dc3545;
-            color: white;
+        .medium {
+            background-color: #f8961e;
+        }
+        
+        .low {
+            background-color: #f72585;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1 0 33%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .tab {
+                flex: 1 0 50%;
+                padding: 1rem 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .card-value {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="fas fa-database me-2"></i>Dashboard Skripsi - Repository Digital</h1>
-                    <p class="mb-0">Sistem Manajemen Data Skripsi Terintegrasi Google Apps Script</p>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Dashboard Data Skripsi</h1>
                 </div>
-                <div class="col-md-4 text-end">
-                    <button class="btn btn-light me-2" id="refreshData"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Ajukan Judul
-                    </a>
+                <div class="last-update">
+                    <i class="fas fa-sync-alt"></i> Terakhir diperbarui: <span id="update-time">-</span>
                 </div>
             </div>
         </div>
-
-        <!-- Info Sheet -->
-        <div class="alert alert-info">
-            <h5><i class="fas fa-info-circle me-2"></i>Data bersumber dari Google Sheets via Apps Script</h5>
-            <p class="mb-0">Dashboard ini terhubung langsung dengan Google Sheets menggunakan Google Apps Script API</p>
-        </div>
-
-        <!-- Navigation Tabs -->
-        <ul class="nav nav-tabs mb-4" id="dashboardTabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#dashboard"><i class="fas fa-home me-1"></i> Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#database"><i class="fas fa-database me-1"></i> Database Skripsi</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#bimbingan"><i class="fas fa-tasks me-1"></i> Data Bimbingan</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#skripsi-final"><i class="fas fa-graduation-cap me-1"></i> Skripsi Final</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#early-warning"><i class="fas fa-exclamation-triangle me-1"></i> Early Warning</a>
-            </li>
-        </ul>
-
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard-tabs">
+            <div class="tab active" data-tab="total">
+                <i class="fas fa-book"></i> TOTAL SKRIPSI
             </div>
-            <p class="mt-2">Memuat data dari Google Sheets...</p>
+            <div class="tab" data-tab="tahun-ini">
+                <i class="fas fa-calendar-alt"></i> TAHUN INI
+            </div>
+            <div class="tab" data-tab="ekonomi">
+                <i class="fas fa-coins"></i> EKONOMI SYARIAH
+            </div>
+            <div class="tab" data-tab="perbankan">
+                <i class="fas fa-university"></i> PERBANKAN SYARIAH
+            </div>
+            <div class="tab" data-tab="manajemen">
+                <i class="fas fa-chart-line"></i> MANAJEMEN BISNIS SYARIAH
+            </div>
+            <div class="tab" data-tab="similarity">
+                <i class="fas fa-exclamation-triangle"></i> SIMILARITY
+            </div>
         </div>
-
-        <!-- Tab Content -->
-        <div class="tab-content">
-            <!-- Dashboard Tab -->
-            <div class="tab-pane fade show active" id="dashboard">
-                <!-- Stats Cards -->
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>TOTAL SKRIPSI</h3>
-                            <p class="stat-number" id="total-skripsi">0</p>
-                        </div>
-                        <div class="stat-icon">
+        
+        <div id="dashboard-content">
+            <div class="dashboard-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total Skripsi</div>
+                        <div class="card-icon bg-primary">
                             <i class="fas fa-book"></i>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>TAHUN INI</h3>
-                            <p class="stat-number" id="tahun-ini">0</p>
-                        </div>
-                        <div class="stat-icon">
+                    <div class="card-value">1,248</div>
+                    <div class="card-description">Jumlah total skripsi yang tercatat</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Skripsi Tahun Ini</div>
+                        <div class="card-icon bg-success">
                             <i class="fas fa-calendar-alt"></i>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>EKONOMI SYARIAH</h3>
-                            <p class="stat-number" id="prodi-ekonomi">0</p>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-university"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>PERINGATAN KESAMAAN</h3>
-                            <p class="stat-number" id="peringatan-kesamaan">0</p>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                    </div>
+                    <div class="card-value">142</div>
+                    <div class="card-description">Skripsi yang diselesaikan tahun 2023</div>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-bolt me-2"></i>Akses Cepat
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <a href="https://docs.google.com/forms/d/1FAIpQLSfEXAMPLE-FORM-ID/viewform" target="_blank" class="btn btn-outline-primary w-100">
-                                            <i class="fas fa-plus-circle me-2"></i> Ajukan Judul Baru
-                                        </a>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="#bimbingan" class="btn btn-outline-success w-100" data-bs-toggle="tab">
-                                            <i class="fas fa-tasks me-2"></i> Data Bimbingan
-                                        </a>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="#skripsi-final" class="btn btn-outline-info w-100" data-bs-toggle="tab">
-                                            <i class="fas fa-graduation-cap me-2"></i> Skripsi Final
-                                        </a>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <a href="#early-warning" class="btn btn-outline-warning w-100" data-bs-toggle="tab">
-                                            <i class="fas fa-exclamation-triangle me-2"></i> Early Warning
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
+                
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-history me-2"></i>Aktivitas Terbaru
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Tanggal</th>
-                                        <th>Mahasiswa</th>
-                                        <th>Aktivitas</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentActivityBody">
-                                    <tr>
-                                        <td colspan="4" class="text-center">Memuat data...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="card-title">Rata-rata Similarity</div>
+                        <div class="card-icon bg-warning">
+                            <i class="fas fa-chart-pie"></i>
                         </div>
                     </div>
+                    <div class="card-value">18.2%</div>
+                    <div class="card-description">Skor similarity rata-rata seluruh skripsi</div>
                 </div>
-            </div>
-
-            <!-- Database Tab -->
-            <div class="tab-pane fade" id="database">
-                <!-- Search Section -->
-                <div class="search-box">
-                    <h4><i class="fas fa-search me-2"></i>Cari Judul Skripsi</h4>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Masukkan kata kunci (contoh: pembiayaan murabahah, perilaku konsumen halal)" id="searchInput">
-                                <button class="btn btn-primary" type="button" id="searchButton">
-                                    <i class="fas fa-search"></i> Cari
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#advancedSearchModal">
-                                <i class="fas fa-sliders-h me-1"></i> Pencarian Lanjutan
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-warning mt-3" id="similarityWarning" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <span id="warningText">Peringatan: Judul yang diajukan mirip dengan skripsi yang sudah ada.</span>
-                    </div>
-                </div>
-
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <h5><i class="fas fa-filter me-2"></i>Filter Data</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Tahun Lulus</label>
-                                <select class="form-select" id="yearFilter">
-                                    <option value="">Semua Tahun</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Program Studi</label>
-                                <select class="form-select" id="prodiFilter">
-                                    <option value="">Semua Prodi</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Pembimbing 1</label>
-                                <select class="form-select" id="pembimbingFilter">
-                                    <option value="">Semua Pembimbing</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" id="statusFilter">
-                                    <option value="">Semua Status</option>
-                                    <option value="Lulus">Lulus</option>
-                                    <option value="Proses">Dalam Proses</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skripsi Table -->
+                
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-list me-2"></i>Katalog Skripsi Digital 
-                        <span class="google-drive-badge">Google Sheets</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="skripsiTable" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nama</th>
-                                        <th>NIM</th>
-                                        <th>Tahun</th>
-                                        <th>Prodi</th>
-                                        <th>Judul Skripsi</th>
-                                        <th>Pembimbing</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data akan dimuat secara dinamis -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Bimbingan Tab -->
-            <div class="tab-pane fade" id="bimbingan">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-tasks me-2"></i>Data Bimbingan Skripsi</h2>
-                    <div>
-                        <button class="btn btn-outline-secondary me-2" id="refreshBimbingan"><i class="fas fa-sync-alt"></i></button>
-                        <a href="https://docs.google.com/forms/d/1EXAMPLE_BIMBINGAN_FORM/viewform" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Tambah Bimbingan
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <h5><i class="fas fa-filter me-2"></i>Filter Data Bimbingan</h5>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <label class="form-label">Dosen Pembimbing</label>
-                                <select class="form-select" id="dosenFilter">
-                                    <option value="">Semua Dosen</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <label class="form-label">Status Bimbingan</label>
-                                <select class="form-select" id="statusBimbinganFilter">
-                                    <option value="">Semua Status</option>
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Selesai">Selesai</option>
-                                    <option value="Tertunda">Tertunda</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-2">
-                                <label class="form-label">Tahap Bimbingan</label>
-                                <select class="form-select" id="tahapFilter">
-                                    <option value="">Semua Tahap</option>
-                                    <option value="Proposal">Proposal</option>
-                                    <option value="Bab 1">Bab 1</option>
-                                    <option value="Bab 2">Bab 2</option>
-                                    <option value="Bab 3">Bab 3</option>
-                                    <option value="Bab 4">Bab 4</option>
-                                    <option value="Bab 5">Bab 5</option>
-                                    <option value="Sidang">Sidang</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bimbingan Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-list me-2"></i>Daftar Bimbingan Skripsi
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="bimbinganTable" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Mahasiswa</th>
-                                        <th>NIM</th>
-                                        <th>Pembimbing</th>
-                                        <th>Tahap</th>
-                                        <th>Progress</th>
-                                        <th>Terakhir Update</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="8" class="text-center">Memuat data bimbingan...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Skripsi Final Tab -->
-            <div class="tab-pane fade" id="skripsi-final">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-graduation-cap me-2"></i>Data Skripsi Final</h2>
-                    <div>
-                        <button class="btn btn-outline-secondary me-2" id="refreshSkripsiFinal"><i class="fas fa-sync-alt"></i></button>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
-                            <i class="fas fa-download"></i> Export Data
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filter Section -->
-                <div class="filter-section">
-                    <h5><i class="fas fa-filter me-2"></i>Filter Skripsi Final</h5>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Tahun Lulus</label>
-                                <select class="form-select" id="tahunLulusFilter">
-                                    <option value="">Semua Tahun</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Program Studi</label>
-                                <select class="form-select" id="prodiFinalFilter">
-                                    <option value="">Semua Prodi</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Nilai</label>
-                                <select class="form-select" id="nilaiFilter">
-                                    <option value="">Semua Nilai</option>
-                                    <option value="A">A (Sangat Baik)</option>
-                                    <option value="B">B (Baik)</option>
-                                    <option value="C">C (Cukup)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-2">
-                                <label class="form-label">Pembimbing</label>
-                                <select class="form-select" id="pembimbingFinalFilter">
-                                    <option value="">Semua Pembimbing</option>
-                                    <!-- Options akan diisi oleh JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skripsi Final Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-list me-2"></i>Daftar Skripsi Final
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="skripsiFinalTable" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Mahasiswa</th>
-                                        <th>NIM</th>
-                                        <th>Tahun Lulus</th>
-                                        <th>Prodi</th>
-                                        <th>Judul Skripsi</th>
-                                        <th>Pembimbing</th>
-                                        <th>Nilai</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="8" class="text-center">Memuat data skripsi final...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Early Warning Tab -->
-            <div class="tab-pane fade" id="early-warning">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-exclamation-triangle me-2"></i>Early Warning System</h2>
-                    <div>
-                        <button class="btn btn-outline-secondary me-2" id="refreshWarning"><i class="fas fa-sync-alt"></i></button>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                            <i class="fas fa-cog"></i> Pengaturan
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="stats-container">
-                    <div class="stat-card warning-card">
-                        <div class="stat-info">
-                            <h3>MAHASISWA BERISIKO</h3>
-                            <p class="stat-number" id="jumlah-berisiko">0</p>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card danger-card">
-                        <div class="stat-info">
-                            <h3>KRITIS</h3>
-                            <p class="stat-number" id="jumlah-kritis">0</p>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-skull-crossbones"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>PERINGATAN DIKIRIM</h3>
-                            <p class="stat-number" id="peringatan-dikirim">0</p>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>TERTANGANI</h3>
-                            <p class="stat-number" id="tertangani">0</p>
-                        </div>
-                        <div class="stat-icon">
+                        <div class="card-title">Tingkat Kesesuaian</div>
+                        <div class="card-icon bg-danger">
                             <i class="fas fa-check-circle"></i>
                         </div>
                     </div>
-                </div>
-
-                <!-- Early Warning Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-list me-2"></i>Daftar Early Warning
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="warningTable" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Mahasiswa</th>
-                                        <th>NIM</th>
-                                        <th>Semester</th>
-                                        <th>Prodi</th>
-                                        <th>Progress</th>
-                                        <th>Status</th>
-                                        <th>Terakhir Aktif</th>
-                                        <th>Risiko</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="9" class="text-center">Memuat data early warning...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div class="card-value">92%</div>
+                    <div class="card-description">Skripsi yang memenuhi standar kesesuaian topik</div>
                 </div>
             </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i> Distribusi Skripsi per Program Studi
+                </div>
+                <canvas id="programStudiChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i> Tren Skripsi per Tahun
+                </div>
+                <canvas id="trenTahunChart"></canvas>
+            </div>
+            
+            <div class="table-container">
+                <div class="chart-title">
+                    <i class="fas fa-table"></i> Data Similarity Tinggi
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Judul Skripsi</th>
+                            <th>Penulis</th>
+                            <th>Tahun</th>
+                            <th>Program Studi</th>
+                            <th>Similarity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Analisis Perbandingan Kinerja Bank Syariah dan Konvensional</td>
+                            <td>Ahmad Fauzi</td>
+                            <td>2023</td>
+                            <td>Perbankan Syariah</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress high" style="width: 32%"></div>
+                                </div>
+                                <small>32%</small>
+                            </td>
+                            <td><span class="badge bg-warning">Perlu Review</span></td>
+                        </tr>
+                        <tr>
+                            <td>Dampak Pandemi terhadap Ekonomi Syariah di Indonesia</td>
+                            <td>Sarah Fitriani</td>
+                            <td>2022</td>
+                            <td>Ekonomi Syariah</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress medium" style="width: 25%"></div>
+                                </div>
+                                <small>25%</small>
+                            </td>
+                            <td><span class="badge bg-success">Aman</span></td>
+                        </tr>
+                        <tr>
+                            <td>Strategi Pemasaran Produk Halal dalam Bisnis Syariah</td>
+                            <td>Rizky Pratama</td>
+                            <td>2023</td>
+                            <td>Manajemen Bisnis Syariah</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress low" style="width: 15%"></div>
+                                </div>
+                                <small>15%</small>
+                            </td>
+                            <td><span class="badge bg-success">Aman</span></td>
+                        </tr>
+                        <tr>
+                            <td>Peran Fintech dalam Pengembangan Ekosistem Syariah</td>
+                            <td>Dewi Anggraini</td>
+                            <td>2021</td>
+                            <td>Ekonomi Syariah</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress high" style="width: 35%"></div>
+                                </div>
+                                <small>35%</small>
+                            </td>
+                            <td><span class="badge bg-danger">Perlu Revisi</span></td>
+                        </tr>
+                        <tr>
+                            <td>Analisis Kinerja Keuangan Baitul Maal wat Tamwil</td>
+                            <td>M. Iqbal</td>
+                            <td>2022</td>
+                            <td>Perbankan Syariah</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress medium" style="width: 22%"></div>
+                                </div>
+                                <small>22%</small>
+                            </td>
+                            <td><span class="badge bg-success">Aman</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
         </div>
     </div>
-
-    <!-- JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Dashboard Data Skripsi - Sistem Informasi Skripsi</p>
+        </div>
+    </footer>
+
     <script>
-        // Google Apps Script Web App URL - GANTI DENGAN URL ANDA
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/APP_ID/exec';
-        
-        // Inisialisasi saat dokumen siap
-        $(document).ready(function() {
-            console.log("Dashboard loaded successfully");
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update waktu terakhir
+            document.getElementById('update-time').textContent = new Date().toLocaleString('id-ID');
             
-            // Inisialisasi DataTable
-            $('#skripsiTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
+            // Inisialisasi chart distribusi program studi
+            const programStudiCtx = document.getElementById('programStudiChart').getContext('2d');
+            const programStudiChart = new Chart(programStudiCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
+                    datasets: [{
+                        data: [520, 415, 313],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#4cc9f0',
+                            '#f8961e'
+                        ],
+                        borderWidth: 1
+                    }]
                 },
-                pageLength: 10,
-                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]]
-            });
-            
-            $('#bimbinganTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-            
-            $('#skripsiFinalTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-            
-            $('#warningTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-            
-            // Event listener untuk pencarian
-            $('#searchButton').click(function() {
-                const searchTerm = $('#searchInput').val();
-                if (searchTerm.length > 0) {
-                    searchSkripsi(searchTerm);
-                } else {
-                    alert('Masukkan kata kunci pencarian');
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
                 }
             });
             
-            // Event listener untuk refresh data
-            $('#refreshData').click(fetchDataFromSheet);
-            $('#refreshBimbingan').click(fetchBimbinganData);
-            $('#refreshSkripsiFinal').click(fetchSkripsiFinalData);
-            $('#refreshWarning').click(fetchEarlyWarningData);
+            // Inisialisasi chart tren tahunan
+            const trenTahunCtx = document.getElementById('trenTahunChart').getContext('2d');
+            const trenTahunChart = new Chart(trenTahunCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Jumlah Skripsi',
+                        data: [180, 195, 210, 232, 245, 142],
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        borderColor: '#4361ee',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
             
-            // Event listener untuk filter
-            $('#yearFilter, #prodiFilter, #pembimbingFilter, #statusFilter').change(applyFilters);
-            $('#dosenFilter, #statusBimbinganFilter, #tahapFilter').change(applyBimbinganFilters);
-            $('#tahunLulusFilter, #prodiFinalFilter, #nilaiFilter, #pembimbingFinalFilter').change(applySkripsiFinalFilters);
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Tampilkan loading
+                    document.getElementById('dashboard-content').style.display = 'none';
+                    document.getElementById('loading').style.display = 'flex';
+                    
+                    // Simulasi loading data
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('dashboard-content').style.display = 'block';
+                    }, 800);
+                });
+            });
             
-            // Muat data awal
-            fetchDataFromSheet();
-            fetchBimbinganData();
-            fetchSkripsiFinalData();
-            fetchEarlyWarningData();
+            // Simulasi pengambilan data dari Google Sheets
+            // Dalam implementasi nyata, ini akan diganti dengan fetch ke Web App Google Apps Script
+            function loadData(action) {
+                console.log('Loading data for:', action);
+                // Implementasi fetch data akan ditambahkan di sini
+            }
         });
-        
-        // Fungsi untuk mengambil data dari Google Sheets via Google Apps Script
-        function fetchDataFromSheet() {
-            showLoading();
-            
-            fetch(`${GAS_WEB_APP_URL}?action=getSkripsi`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Data received from Google Sheets:", data);
-                    window.skripsiData = data;
-                    processSkripsiData(data);
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching data from Google Sheets:', error);
-                    useSampleSkripsiData();
-                    hideLoading();
-                });
-        }
-        
-        // Fungsi untuk mengambil data bimbingan
-        function fetchBimbinganData() {
-            showLoading();
-            
-            fetch(`${GAS_WEB_APP_URL}?action=getBimbingan`)
-                .then(response => response.json())
-                .then(data => {
-                    window.bimbinganData = data;
-                    processBimbinganData(data);
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching bimbingan data:', error);
-                    useSampleBimbinganData();
-                    hideLoading();
-                });
-        }
-        
-        // Fungsi untuk mengambil data skripsi final
-        function fetchSkripsiFinalData() {
-            showLoading();
-            
-            fetch(`${GAS_WEB_APP_URL}?action=getSkripsiFinal`)
-                .then(response => response.json())
-                .then(data => {
-                    window.skripsiFinalData = data;
-                    processSkripsiFinalData(data);
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching skripsi final data:', error);
-                    useSampleSkripsiFinalData();
-                    hideLoading();
-                });
-        }
-        
-        // Fungsi untuk mengambil data early warning
-        function fetchEarlyWarningData() {
-            showLoading();
-            
-            fetch(`${GAS_WEB_APP_URL}?action=getEarlyWarning`)
-                .then(response => response.json())
-                .then(data => {
-                    window.warningData = data;
-                    processEarlyWarningData(data);
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error fetching early warning data:', error);
-                    useSampleEarlyWarningData();
-                    hideLoading();
-                });
-        }
-        
-        // Fungsi untuk memproses data skripsi
-        function processSkripsiData(data) {
-            // Isi tabel dengan data
-            populateSkripsiTable(data);
-            
-            // Update statistik
-            updateStatistics(data);
-            
-            // Isi dropdown filter
-            populateFilterDropdowns(data);
-            
-            // Update aktivitas terbaru
-            updateRecentActivity(data);
-        }
-        
-        // Fungsi untuk memproses data bimbingan
-        function processBimbinganData(data) {
-            populateBimbinganTable(data);
-            updateBimbinganFilters(data);
-        }
-        
-        // Fungsi untuk memproses data skripsi final
-        function processSkripsiFinalData(data) {
-            populateSkripsiFinalTable(data);
-            updateSkripsiFinalFilters(data);
-        }
-        
-        // Fungsi untuk memproses data early warning
-        function processEarlyWarningData(data) {
-            populateEarlyWarningTable(data);
-            updateEarlyWarningStats(data);
-        }
-        
-        // Fungsi untuk menampilkan data dalam tabel skripsi
-        function populateSkripsiTable(data) {
-            const tbody = $('#skripsiTable tbody');
-            tbody.empty();
-            
-            if (data.length === 0) {
-                tbody.append('<tr><td colspan="8" class="text-center">Tidak ada data skripsi</td></tr>');
-                return;
-            }
-            
-            data.forEach(item => {
-                const nama = item.nama || item.Nama || item.Mahasiswa || '';
-                const nim = item.nim || item.NIM || '';
-                const tahun = item.tahun || item.Tahun || '';
-                const prodi = item.prodi || item.Prodi || item['Program Studi'] || '';
-                const judul = item.judul || item.Judul || item['Judul Skripsi'] || '';
-                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                const status = item.status || item.Status || '';
-                const link = item.link || item.Link || item['Link File'] || '#';
-                
-                const row = `
-                    <tr>
-                        <td>${nama}</td>
-                        <td>${nim}</td>
-                        <td>${tahun}</td>
-                        <td>${prodi}</td>
-                        <td>${judul}</td>
-                        <td>${pembimbing1} ${pembimbing2 ? '& ' + pembimbing2 : ''}</td>
-                        <td><span class="badge ${status === 'Lulus' ? 'bg-success' : 'bg-warning'}">${status}</span></td>
-                        <td>
-                            <a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i> Lihat
-                            </a>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
-            
-            // Refresh DataTables
-            $('#skripsiTable').DataTable().destroy();
-            $('#skripsiTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10,
-                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]]
-            });
-        }
-        
-        // Fungsi untuk menampilkan data dalam tabel bimbingan
-        function populateBimbinganTable(data) {
-            const tbody = $('#bimbinganTable tbody');
-            tbody.empty();
-            
-            if (data.length === 0) {
-                tbody.append('<tr><td colspan="8" class="text-center">Tidak ada data bimbingan</td></tr>');
-                return;
-            }
-            
-            data.forEach(item => {
-                const nama = item.nama || item.Nama || item.Mahasiswa || '';
-                const nim = item.nim || item.NIM || '';
-                const pembimbing = item.pembimbing || item.Pembimbing || '';
-                const tahap = item.tahap || item.Tahap || '';
-                const progress = item.progress || item.Progress || '0';
-                const lastUpdate = item.lastUpdate || item['Last Update'] || '';
-                const status = item.status || item.Status || '';
-                
-                const row = `
-                    <tr>
-                        <td>${nama}</td>
-                        <td>${nim}</td>
-                        <td>${pembimbing}</td>
-                        <td>${tahap}</td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">${progress}%</div>
-                            </div>
-                        </td>
-                        <td>${lastUpdate}</td>
-                        <td><span class="badge ${getStatusBadgeClass(status)}">${status}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
-            
-            $('#bimbinganTable').DataTable().destroy();
-            $('#bimbinganTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-        }
-        
-        // Fungsi untuk menampilkan data dalam tabel skripsi final
-        function populateSkripsiFinalTable(data) {
-            const tbody = $('#skripsiFinalTable tbody');
-            tbody.empty();
-            
-            if (data.length === 0) {
-                tbody.append('<tr><td colspan="8" class="text-center">Tidak ada data skripsi final</td></tr>');
-                return;
-            }
-            
-            data.forEach(item => {
-                const nama = item.nama || item.Nama || item.Mahasiswa || '';
-                const nim = item.nim || item.NIM || '';
-                const tahun = item.tahun || item.Tahun || '';
-                const prodi = item.prodi || item.Prodi || item['Program Studi'] || '';
-                const judul = item.judul || item.Judul || item['Judul Skripsi'] || '';
-                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                const nilai = item.nilai || item.Nilai || '';
-                const link = item.link || item.Link || item['Link File'] || '#';
-                
-                const row = `
-                    <tr>
-                        <td>${nama}</td>
-                        <td>${nim}</td>
-                        <td>${tahun}</td>
-                        <td>${prodi}</td>
-                        <td>${judul}</td>
-                        <td>${pembimbing1} ${pembimbing2 ? '& ' + pembimbing2 : ''}</td>
-                        <td><span class="badge ${getNilaiBadgeClass(nilai)}">${nilai}</span></td>
-                        <td>
-                            <a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i> Lihat
-                            </a>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
-            
-            $('#skripsiFinalTable').DataTable().destroy();
-            $('#skripsiFinalTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-        }
-        
-        // Fungsi untuk menampilkan data dalam tabel early warning
-        function populateEarlyWarningTable(data) {
-            const tbody = $('#warningTable tbody');
-            tbody.empty();
-            
-            if (data.length === 0) {
-                tbody.append('<tr><td colspan="9" class="text-center">Tidak ada data early warning</td></tr>');
-                return;
-            }
-            
-            data.forEach(item => {
-                const nama = item.nama || item.Nama || item.Mahasiswa || '';
-                const nim = item.nim || item.NIM || '';
-                const semester = item.semester || item.Semester || '';
-                const prodi = item.prodi || item.Prodi || item['Program Studi'] || '';
-                const progress = item.progress || item.Progress || '0';
-                const status = item.status || item.Status || '';
-                const lastActive = item.lastActive || item['Last Active'] || '';
-                const risiko = item.risiko || item.Risiko || '';
-                
-                const row = `
-                    <tr>
-                        <td>${nama}</td>
-                        <td>${nim}</td>
-                        <td>${semester}</td>
-                        <td>${prodi}</td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar ${getProgressBarClass(progress)}" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">${progress}%</div>
-                            </div>
-                        </td>
-                        <td><span class="badge ${getStatusBadgeClass(status)}">${status}</span></td>
-                        <td>${lastActive}</td>
-                        <td><span class="badge ${getRisikoBadgeClass(risiko)}">${risiko}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-bell"></i> Ingatkan
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
-            
-            $('#warningTable').DataTable().destroy();
-            $('#warningTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
-                },
-                pageLength: 10
-            });
-        }
-        
-        // Fungsi untuk memperbarui statistik
-        function updateStatistics(data) {
-            const totalSkripsi = data.length;
-            const tahunIni = new Date().getFullYear();
-            const skripsiTahunIni = data.filter(item => {
-                const tahun = item.tahun || item.Tahun || '';
-                return tahun && tahun.toString() === tahunIni.toString();
-            }).length;
-            
-            const skripsiEkonomi = data.filter(item => {
-                const prodi = item.prodi || item.Prodi || '';
-                return prodi && prodi.toLowerCase().includes('ekonomi');
-            }).length;
-            
-            // Hitung peringatan kesamaan (contoh sederhana)
-            const peringatanKesamaan = data.filter(item => {
-                const judul = item.judul || item.Judul || '';
-                return judul && judul.toLowerCase().includes('murabahah');
-            }).length;
-            
-            document.getElementById('total-skripsi').textContent = totalSkripsi;
-            document.getElementById('tahun-ini').textContent = skripsiTahunIni;
-            document.getElementById('prodi-ekonomi').textContent = skripsiEkonomi;
-            document.getElementById('peringatan-kesamaan').textContent = peringatanKesamaan;
-        }
-        
-        // Fungsi untuk memperbarui statistik early warning
-        function updateEarlyWarningStats(data) {
-            const jumlahBerisiko = data.filter(item => {
-                const risiko = item.risiko || item.Risiko || '';
-                return risiko === 'Tinggi' || risiko === 'Sedang';
-            }).length;
-            
-            const jumlahKritis = data.filter(item => {
-                const risiko = item.risiko || item.Risiko || '';
-                return risiko === 'Tinggi';
-            }).length;
-            
-            document.getElementById('jumlah-berisiko').textContent = jumlahBerisiko;
-            document.getElementById('jumlah-kritis').textContent = jumlahKritis;
-        }
-        
-        // Fungsi untuk mengisi dropdown filter
-        function populateFilterDropdowns(data) {
-            // Tahun
-            const tahunSet = new Set();
-            data.forEach(item => {
-                const tahun = item.tahun || item.Tahun || '';
-                if (tahun) tahunSet.add(tahun);
-            });
-            const tahunOptions = Array.from(tahunSet).sort().reverse();
-            $('#yearFilter').empty().append('<option value="">Semua Tahun</option>');
-            tahunOptions.forEach(tahun => {
-                $('#yearFilter').append(`<option value="${tahun}">${tahun}</option>`);
-            });
-            
-            // Program Studi
-            const prodiSet = new Set();
-            data.forEach(item => {
-                const prodi = item.prodi || item.Prodi || '';
-                if (prodi) prodiSet.add(prodi);
-            });
-            $('#prodiFilter').empty().append('<option value="">Semua Prodi</option>');
-            prodiSet.forEach(prodi => {
-                $('#prodiFilter').append(`<option value="${prodi}">${prodi}</option>`);
-            });
-            
-            // Pembimbing
-            const pembimbingSet = new Set();
-            data.forEach(item => {
-                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                if (pembimbing1) pembimbingSet.add(pembimbing1);
-                if (pembimbing2) pembimbingSet.add(pembimbing2);
-            });
-            $('#pembimbingFilter').empty().append('<option value="">Semua Pembimbing</option>');
-            pembimbingSet.forEach(pembimbing => {
-                $('#pembimbingFilter').append(`<option value="${pembimbing}">${pembimbing}</option>`);
-            });
-        }
-        
-        // Fungsi untuk mengisi dropdown filter bimbingan
-        function updateBimbinganFilters(data) {
-            // Dosen Pembimbing
-            const dosenSet = new Set();
-            data.forEach(item => {
-                const pembimbing = item.pembimbing || item.Pembimbing || '';
-                if (pembimbing) dosenSet.add(pembimbing);
-            });
-            $('#dosenFilter').empty().append('<option value="">Semua Dosen</option>');
-            dosenSet.forEach(dosen => {
-                $('#dosenFilter').append(`<option value="${dosen}">${dosen}</option>`);
-            });
-        }
-        
-        // Fungsi untuk mengisi dropdown filter skripsi final
-        function updateSkripsiFinalFilters(data) {
-            // Tahun Lulus
-            const tahunSet = new Set();
-            data.forEach(item => {
-                const tahun = item.tahun || item.Tahun || '';
-                if (tahun) tahunSet.add(tahun);
-            });
-            const tahunOptions = Array.from(tahunSet).sort().reverse();
-            $('#tahunLulusFilter').empty().append('<option value="">Semua Tahun</option>');
-            tahunOptions.forEach(tahun => {
-                $('#tahunLulusFilter').append(`<option value="${tahun}">${tahun}</option>`);
-            });
-            
-            // Program Studi
-            const prodiSet = new Set();
-            data.forEach(item => {
-                const prodi = item.prodi || item.Prodi || '';
-                if (prodi) prodiSet.add(prodi);
-            });
-            $('#prodiFinalFilter').empty().append('<option value="">Semua Prodi</option>');
-            prodiSet.forEach(prodi => {
-                $('#prodiFinalFilter').append(`<option value="${prodi}">${prodi}</option>`);
-            });
-            
-            // Pembimbing
-            const pembimbingSet = new Set();
-            data.forEach(item => {
-                const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                if (pembimbing1) pembimbingSet.add(pembimbing1);
-                if (pembimbing2) pembimbingSet.add(pembimbing2);
-            });
-            $('#pembimbingFinalFilter').empty().append('<option value="">Semua Pembimbing</option>');
-            pembimbingSet.forEach(pembimbing => {
-                $('#pembimbingFinalFilter').append(`<option value="${pembimbing}">${pembimbing}</option>`);
-            });
-        }
-        
-        // Fungsi untuk memperbarui aktivitas terbaru
-        function updateRecentActivity(data) {
-            const tbody = $('#recentActivityBody');
-            tbody.empty();
-            
-            // Ambil 5 data terbaru (asumsi data sudah terurut dari terbaru)
-            const recentData = data.slice(0, 5);
-            
-            if (recentData.length === 0) {
-                tbody.append('<tr><td colspan="4" class="text-center">Tidak ada aktivitas terbaru</td></tr>');
-                return;
-            }
-            
-            recentData.forEach(item => {
-                const nama = item.nama || item.Nama || '';
-                const nim = item.nim || item.NIM || '';
-                const status = item.status || item.Status || '';
-                const tanggal = item.tanggal || item.Tanggal || new Date().toLocaleDateString('id-ID');
-                
-                let aktivitas = 'Pengajuan judul skripsi';
-                if (status === 'Lulus') aktivitas = 'Telah menyelesaikan skripsi';
-                
-                const statusBadge = status === 'Lulus' ? 
-                    '<span class="badge bg-success">Selesai</span>' : 
-                    '<span class="badge bg-warning">Proses</span>';
-                
-                const row = `
-                    <tr>
-                        <td>${tanggal}</td>
-                        <td>${nama} (${nim})</td>
-                        <td>${aktivitas}</td>
-                        <td>${statusBadge}</td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
-        }
-        
-        // Fungsi untuk mencari skripsi
-        function searchSkripsi(keyword) {
-            if (!window.skripsiData) {
-                alert('Data belum dimuat');
-                return;
-            }
-            
-            const filteredData = window.skripsiData.filter(item => {
-                const judul = item.judul || item.Judul || '';
-                const abstrak = item.abstrak || item.Abstrak || '';
-                return judul.toLowerCase().includes(keyword.toLowerCase()) || 
-                       abstrak.toLowerCase().includes(keyword.toLowerCase());
-            });
-            
-            populateSkripsiTable(filteredData);
-            
-            // Tampilkan peringatan jika ada kemiripan
-            if (filteredData.length > 0 && keyword.toLowerCase().includes('murabahah')) {
-                $('#similarityWarning').show();
-                $('#warningText').text(`Peringatan: Ditemukan ${filteredData.length} skripsi dengan judul mirip.`);
-            } else {
-                $('#similarityWarning').hide();
-            }
-        }
-        
-        // Fungsi untuk menerapkan filter
-        function applyFilters() {
-            if (!window.skripsiData) {
-                alert('Data belum dimuat');
-                return;
-            }
-
-            const tahunValue = $('#yearFilter').val();
-            const prodiValue = $('#prodiFilter').val();
-            const pembimbingValue = $('#pembimbingFilter').val();
-            const statusValue = $('#statusFilter').val();
-
-            let filteredData = window.skripsiData;
-
-            if (tahunValue) {
-                filteredData = filteredData.filter(item => {
-                    const tahun = item.tahun || item.Tahun || '';
-                    return tahun.toString() === tahunValue;
-                });
-            }
-
-            if (prodiValue) {
-                filteredData = filteredData.filter(item => {
-                    const prodi = item.prodi || item.Prodi || '';
-                    return prodi === prodiValue;
-                });
-            }
-
-            if (pembimbingValue) {
-                filteredData = filteredData.filter(item => {
-                    const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                    const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                    return pembimbing1 === pembimbingValue || pembimbing2 === pembimbingValue;
-                });
-            }
-
-            if (statusValue) {
-                filteredData = filteredData.filter(item => {
-                    const status = item.status || item.Status || '';
-                    return status === statusValue;
-                });
-            }
-
-            populateSkripsiTable(filteredData);
-        }
-        
-        // Fungsi untuk menerapkan filter bimbingan
-        function applyBimbinganFilters() {
-            if (!window.bimbinganData) return;
-            
-            const dosenValue = $('#dosenFilter').val();
-            const statusValue = $('#statusBimbinganFilter').val();
-            const tahapValue = $('#tahapFilter').val();
-            
-            let filteredData = window.bimbinganData;
-            
-            if (dosenValue) {
-                filteredData = filteredData.filter(item => {
-                    const pembimbing = item.pembimbing || item.Pembimbing || '';
-                    return pembimbing === dosenValue;
-                });
-            }
-            
-            if (statusValue) {
-                filteredData = filteredData.filter(item => {
-                    const status = item.status || item.Status || '';
-                    return status === statusValue;
-                });
-            }
-            
-            if (tahapValue) {
-                filteredData = filteredData.filter(item => {
-                    const tahap = item.tahap || item.Tahap || '';
-                    return tahap === tahapValue;
-                });
-            }
-            
-            populateBimbinganTable(filteredData);
-        }
-        
-        // Fungsi untuk menerapkan filter skripsi final
-        function applySkripsiFinalFilters() {
-            if (!window.skripsiFinalData) return;
-            
-            const tahunValue = $('#tahunLulusFilter').val();
-            const prodiValue = $('#prodiFinalFilter').val();
-            const nilaiValue = $('#nilaiFilter').val();
-            const pembimbingValue = $('#pembimbingFinalFilter').val();
-            
-            let filteredData = window.skripsiFinalData;
-            
-            if (tahunValue) {
-                filteredData = filteredData.filter(item => {
-                    const tahun = item.tahun || item.Tahun || '';
-                    return tahun.toString() === tahunValue;
-                });
-            }
-            
-            if (prodiValue) {
-                filteredData = filteredData.filter(item => {
-                    const prodi = item.prodi || item.Prodi || '';
-                    return prodi === prodiValue;
-                });
-            }
-            
-            if (nilaiValue) {
-                filteredData = filteredData.filter(item => {
-                    const nilai = item.nilai || item.Nilai || '';
-                    return nilai === nilaiValue;
-                });
-            }
-            
-            if (pembimbingValue) {
-                filteredData = filteredData.filter(item => {
-                    const pembimbing1 = item.pembimbing1 || item['Pembimbing 1'] || '';
-                    const pembimbing2 = item.pembimbing2 || item['Pembimbing 2'] || '';
-                    return pembimbing1 === pembimbingValue || pembimbing2 === pembimbingValue;
-                });
-            }
-            
-            populateSkripsiFinalTable(filteredData);
-        }
-        
-        // Fungsi untuk mendapatkan class badge berdasarkan status
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'Aktif': return 'bg-primary';
-                case 'Selesai': return 'bg-success';
-                case 'Lulus': return 'bg-success';
-                case 'Proses': return 'bg-warning';
-                case 'Tertunda': return 'bg-danger';
-                default: return 'bg-secondary';
-            }
-        }
-        
-        // Fungsi untuk mendapatkan class badge berdasarkan nilai
-        function getNilaiBadgeClass(nilai) {
-            switch (nilai) {
-                case 'A': return 'bg-success';
-                case 'B': return 'bg-primary';
-                case 'C': return 'bg-warning';
-                default: return 'bg-secondary';
-            }
-        }
-        
-        // Fungsi untuk mendapatkan class badge berdasarkan risiko
-        function getRisikoBadgeClass(risiko) {
-            switch (risiko) {
-                case 'Tinggi': return 'bg-danger';
-                case 'Sedang': return 'bg-warning';
-                case 'Rendah': return 'bg-info';
-                default: return 'bg-secondary';
-            }
-        }
-        
-        // Fungsi untuk mendapatkan class progress bar berdasarkan progress
-        function getProgressBarClass(progress) {
-            progress = parseInt(progress);
-            if (progress >= 80) return 'bg-success';
-            if (progress >= 50) return 'bg-primary';
-            if (progress >= 30) return 'bg-warning';
-            return 'bg-danger';
-        }
-        
-        // Fungsi untuk menggunakan data sampel (jika API tidak tersedia)
-        function useSampleSkripsiData() {
-            console.log("Using sample skripsi data");
-            const sampleData = [
-                {
-                    nama: 'Ahmad Fauzi',
-                    nim: '2020111001',
-                    tahun: '2023',
-                    prodi: 'Ekonomi Syariah',
-                    judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
-                    pembimbing1: 'Dr. Ahmad Surya, M.E.I.',
-                    pembimbing2: 'Dr. Siti Aminah, M.Si.',
-                    status: 'Lulus',
-                    link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
-                },
-                {
-                    nama: 'Siti Rahayu',
-                    nim: '2020112056',
-                    tahun: '2023',
-                    prodi: 'Perbankan Syariah',
-                    judul: 'Pengaruh Kualitas Layanan terhadap Kepuasan Nasabah Bank Syariah',
-                    pembimbing1: 'Dr. Siti Aminah, M.Si.',
-                    status: 'Proses',
-                    link: 'https://drive.google.com/file/d/2EXAMPLE_FILE_ID/view'
-                },
-                {
-                    nama: 'Muhammad Ali',
-                    nim: '2020113078',
-                    tahun: '2022',
-                    prodi: 'Manajemen Bisnis Syariah',
-                    judul: 'Strategi Pemasaran Produk Halal dalam Era Digital',
-                    pembimbing1: 'Prof. Dr. Muhammad Ali, M.A.',
-                    status: 'Lulus',
-                    link: 'https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view'
-                }
-            ];
-            
-            window.skripsiData = sampleData;
-            processSkripsiData(sampleData);
-        }
-        
-        function useSampleBimbinganData() {
-            const sampleData = [
-                {
-                    nama: 'Siti Rahayu',
-                    nim: '2020112056',
-                    pembimbing: 'Dr. Siti Aminah, M.Si.',
-                    tahap: 'Bab 3',
-                    progress: '65',
-                    lastUpdate: '12 Apr 2023',
-                    status: 'Aktif'
-                },
-                {
-                    nama: 'Budi Santoso',
-                    nim: '2020113078',
-                    pembimbing: 'Prof. Dr. Muhammad Ali, M.A.',
-                    tahap: 'Proposal',
-                    progress: '30',
-                    lastUpdate: '10 Apr 2023',
-                    status: 'Tertunda'
-                },
-                {
-                    nama: 'Dewi Kusuma',
-                    nim: '2020111095',
-                    pembimbing: 'Dr. Ahmad Surya, M.E.I.',
-                    tahap: 'Bab 4',
-                    progress: '80',
-                    lastUpdate: '11 Apr 2023',
-                    status: 'Aktif'
-                }
-            ];
-            
-            window.bimbinganData = sampleData;
-            processBimbinganData(sampleData);
-        }
-        
-        function useSampleSkripsiFinalData() {
-            const sampleData = [
-                {
-                    nama: 'Ahmad Fauzi',
-                    nim: '2020111001',
-                    tahun: '2023',
-                    prodi: 'Ekonomi Syariah',
-                    judul: 'Analisis Pembiayaan Murabahah pada Bank Syariah Mandiri',
-                    pembimbing1: 'Dr. Ahmad Surya, M.E.I.',
-                    pembimbing2: 'Dr. Siti Aminah, M.Si.',
-                    nilai: 'A',
-                    link: 'https://drive.google.com/file/d/1EXAMPLE_FILE_ID/view'
-                },
-                {
-                    nama: 'Muhammad Ali',
-                    nim: '2020113078',
-                    tahun: '2022',
-                    prodi: 'Manajemen Bisnis Syariah',
-                    judul: 'Strategi Pemasaran Produk Halal dalam Era Digital',
-                    pembimbing1: 'Prof. Dr. Muhammad Ali, M.A.',
-                    nilai: 'B',
-                    link: 'https://drive.google.com/file/d/3EXAMPLE_FILE_ID/view'
-                }
-            ];
-            
-            window.skripsiFinalData = sampleData;
-            processSkripsiFinalData(sampleData);
-        }
-        
-        function useSampleEarlyWarningData() {
-            const sampleData = [
-                {
-                    nama: 'Budi Santoso',
-                    nim: '2020113078',
-                    semester: '12',
-                    prodi: 'Manajemen Bisnis Syariah',
-                    progress: '30',
-                    status: 'Tertunda',
-                    lastActive: '2 bulan lalu',
-                    risiko: 'Tinggi'
-                },
-                {
-                    nama: 'Ani Lestari',
-                    nim: '2020112087',
-                    semester: '11',
-                    prodi: 'Perbankan Syariah',
-                    progress: '45',
-                    status: 'Proses',
-                    lastActive: '3 minggu lalu',
-                    risiko: 'Sedang'
-                }
-            ];
-            
-            window.warningData = sampleData;
-            processEarlyWarningData(sampleData);
-        }
-        
-        // Fungsi untuk menampilkan loading
-        function showLoading() {
-            $('#loadingIndicator').show();
-        }
-        
-        // Fungsi untuk menyembunyikan loading
-        function hideLoading() {
-            $('#loadingIndicator').hide();
-        }
     </script>
 </body>
 </html>
