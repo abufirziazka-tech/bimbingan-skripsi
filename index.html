@@ -3,190 +3,503 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Skripsi</title>
+    <title>Dashboard Monitoring Skripsi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
         body {
+            background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        .navbar {
+            background: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+        
         .card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            margin-bottom: 20px;
         }
-        .card h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            font-size: 1.2rem;
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
-        .stat {
+        
+        .card-icon {
             font-size: 2.5rem;
-            font-weight: bold;
-            color: #3498db;
-            margin: 15px 0;
+            margin-bottom: 15px;
         }
-        .chart-container {
-            background-color: white;
-            border-radius: 8px;
+        
+        .stat-card {
+            color: white;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
         }
-        .last-update {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-top: 20px;
+        
+        .stat-card.total { background: linear-gradient(45deg, #3498db, #2c3e50); }
+        .stat-card.year { background: linear-gradient(45deg, #2ecc71, #27ae60); }
+        .stat-card.economics { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .stat-card.banking { background: linear-gradient(45deg, #f39c12, #d35400); }
+        .stat-card.management { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        
+        .dashboard-header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .btn-filter {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .btn-filter:hover {
+            background: var(--secondary);
+        }
+        
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 15px 0;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Dashboard Ringkasan Skripsi</h1>
-            <p>Statistik skripsi berdasarkan program studi</p>
-        </header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>
+                Dashboard Monitoring Skripsi
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Beranda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-info-circle me-1"></i> Tentang</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-envelope me-1"></i> Kontak</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-        <div class="dashboard">
-            <div class="card">
-                <h2>TOTAL SKRIPSI</h2>
-                <div class="stat" id="total">0</div>
-                <p>Jumlah keseluruhan skripsi</p>
-            </div>
-            <div class="card">
-                <h2>TAHUN INI</h2>
-                <div class="stat" id="tahun-ini">0</div>
-                <p>Skripsi pada tahun berjalan</p>
-            </div>
-            <div class="card">
-                <h2>EKONOMI SYARIAH</h2>
-                <div class="stat" id="es">0</div>
-                <p>Jumlah skripsi program studi Ekonomi Syariah</p>
-            </div>
-            <div class="card">
-                <h2>PERBANKAN SYARIAH</h2>
-                <div class="stat" id="ps">0</div>
-                <p>Jumlah skripsi program studi Perbankan Syariah</p>
-            </div>
-            <div class="card">
-                <h2>MANAJEMEN BISNIS SYARIAH</h2>
-                <div class="stat" id="mbs">0</div>
-                <p>Jumlah skripsi program studi Manajemen Bisnis Syariah</p>
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2>Monitoring Progress Skripsi</h2>
+                    <p class="text-muted">Statistik dan data lengkap mengenai skripsi mahasiswa</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-primary me-2" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh Data
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="chart-container">
-            <canvas id="prodiChart"></canvas>
+        <!-- Stats Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card stat-card total">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3 id="total-skripsi">0</h3>
+                        <h5 class="card-title">TOTAL SKRIPSI</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card year">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3 id="tahun-ini">0</h3>
+                        <h5 class="card-title">TAHUN INI</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card economics">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 id="ekonomi-syariah">0</h3>
+                        <h5 class="card-title">EKONOMI SYARIAH</h5>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="last-update">
-            <p id="update-time">Terakhir diperbarui: -</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card stat-card banking">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h3 id="perbankan-syariah">0</h3>
+                        <h5 class="card-title">PERBANKAN SYARIAH</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stat-card management">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-business-time"></i>
+                        </div>
+                        <h3 id="manajemen-bisnis-syariah">0</h3>
+                        <h5 class="card-title">MANAJEMEN BISNIS SYARIAH</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Data Section -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h4 class="mb-4">Distribusi Skripsi per Program Studi</h4>
+                    <canvas id="programStudiChart" height="250"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <h4 class="mb-4">Progress Skripsi per Tahun</h4>
+                    <canvas id="tahunChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Filter Data</h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group">
+                        <button class="btn btn-filter active" data-filter="all">Semua</button>
+                        <button class="btn btn-filter" data-filter="economics">Ekonomi Syariah</button>
+                        <button class="btn btn-filter" data-filter="banking">Perbankan Syariah</button>
+                        <button class="btn btn-filter" data-filter="management">Manajemen Bisnis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <h4 class="mb-4">Daftar Skripsi</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>NIM</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Program Studi</th>
+                            <th>Judul Skripsi</th>
+                            <th>Status</th>
+                            <th>Tahun</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="loading">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p>&copy; 2023 Sistem Monitoring Skripsi - Fakultas Ekonomi dan Bisnis Islam</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fungsi untuk mengambil data dari Google Apps Script
-        async function fetchData() {
+        // URL Google Apps Script Web App
+        const webAppUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+        
+        // Data global
+        let allData = [];
+        let aggregateData = {};
+        
+        // Inisialisasi dashboard saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAggregateData();
+            loadTableData();
+            setupFilterButtons();
+        });
+        
+        // Memuat data agregat
+        async function loadAggregateData() {
             try {
-                const response = await fetch('https://script.google.com/macros/s/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/exec?action=getSkripsi');
+                const response = await fetch(`${webAppUrl}?action=getAggregateData`);
                 const data = await response.json();
-                return data;
+                
+                aggregateData = data;
+                
+                // Update card values
+                document.getElementById('total-skripsi').textContent = data.totalSkripsi;
+                document.getElementById('tahun-ini').textContent = data.tahunIni;
+                document.getElementById('ekonomi-syariah').textContent = data.ekonomiSyariah;
+                document.getElementById('perbankan-syariah').textContent = data.perbankanSyariah;
+                document.getElementById('manajemen-bisnis-syariah').textContent = data.manajemenBisnisSyariah;
+                
+                // Update charts
+                updateProgramStudiChart();
+                updateTahunChart();
+                
             } catch (error) {
-                console.error('Error fetching data:', error);
-                return [];
+                console.error('Error loading aggregate data:', error);
+                alert('Gagal memuat data agregat. Silakan coba lagi.');
             }
         }
-
-        // Fungsi untuk memproses data dan mengupdate dashboard
-        function processData(data) {
-            // Hitung total skripsi
-            const total = data.length;
-            
-            // Dapatkan tahun saat ini
-            const currentYear = new Date().getFullYear();
-            
-            // Hitung skripsi tahun ini (asumsi ada kolom 'Tahun' dalam data)
-            const tahunIni = data.filter(item => item.Tahun == currentYear).length;
-            
-            // Hitung berdasarkan program studi (asumsi ada kolom 'Program_Studi' dalam data)
-            const es = data.filter(item => item.Program_Studi === 'Ekonomi Syariah').length;
-            const ps = data.filter(item => item.Program_Studi === 'Perbankan Syariah').length;
-            const mbs = data.filter(item => item.Program_Studi === 'Manajemen Bisnis Syariah').length;
-            
-            return { total, tahunIni, es, ps, mbs };
+        
+        // Memuat data tabel
+        async function loadTableData() {
+            try {
+                const response = await fetch(`${webAppUrl}?action=getSkripsi`);
+                const data = await response.json();
+                
+                allData = data;
+                renderTable(data);
+                
+            } catch (error) {
+                console.error('Error loading table data:', error);
+                document.getElementById('data-table').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Gagal memuat data. Silakan refresh halaman.
+                        </td>
+                    </tr>
+                `;
+            }
         }
-
-        // Fungsi untuk mengupdate tampilan dashboard
-        function updateDashboard(stats) {
-            document.getElementById('total').textContent = stats.total;
-            document.getElementById('tahun-ini').textContent = stats.tahunIni;
-            document.getElementById('es').textContent = stats.es;
-            document.getElementById('ps').textContent = stats.ps;
-            document.getElementById('mbs').textContent = stats.mbs;
+        
+        // Render tabel dengan data
+        function renderTable(data) {
+            const tableBody = document.getElementById('data-table');
             
-            // Update waktu terakhir diperbarui
-            const now = new Date();
-            document.getElementById('update-time').textContent = `Terakhir diperbarui: ${now.toLocaleString('id-ID')}`;
-            
-            // Buat atau update chart
-            updateChart(stats);
-        }
-
-        // Fungsi untuk membuat atau mengupdate chart
-        function updateChart(stats) {
-            const ctx = document.getElementById('prodiChart').getContext('2d');
-            
-            // Hancurkan chart sebelumnya jika ada
-            if (window.prodiChart) {
-                window.prodiChart.destroy();
+            if (data.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Tidak ada data yang ditemukan.
+                        </td>
+                    </tr>
+                `;
+                return;
             }
             
-            window.prodiChart = new Chart(ctx, {
-                type: 'bar',
+            let tableHtml = '';
+            
+            data.forEach(item => {
+                // Determine status badge color
+                let statusClass = 'secondary';
+                if (item.Status === 'Lulus') statusClass = 'success';
+                if (item.Status === 'Proposal') statusClass = 'warning';
+                if (item.Status === 'Bimbingan') statusClass = 'primary';
+                if (item.Status === 'Ujian') statusClass = 'info';
+                
+                tableHtml += `
+                    <tr>
+                        <td>${item.NIM || '-'}</td>
+                        <td>${item.Nama || '-'}</td>
+                        <td>${item['Program Studi'] || '-'}</td>
+                        <td>${item.Judul || '-'}</td>
+                        <td><span class="badge bg-${statusClass}">${item.Status || '-'}</span></td>
+                        <td>${item.Tahun || '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = tableHtml;
+        }
+        
+        // Setup filter buttons
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.btn-filter');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Get filter value
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Filter data
+                    let filteredData = allData;
+                    
+                    if (filter !== 'all') {
+                        let programStudi = '';
+                        
+                        if (filter === 'economics') programStudi = 'Ekonomi Syariah';
+                        if (filter === 'banking') programStudi = 'Perbankan Syariah';
+                        if (filter === 'management') programStudi = 'Manajemen Bisnis Syariah';
+                        
+                        filteredData = allData.filter(item => item['Program Studi'] === programStudi);
+                    }
+                    
+                    // Render filtered data
+                    renderTable(filteredData);
+                });
+            });
+        }
+        
+        // Update program studi chart
+        function updateProgramStudiChart() {
+            const ctx = document.getElementById('programStudiChart').getContext('2d');
+            
+            if (window.programStudiChart) {
+                window.programStudiChart.destroy();
+            }
+            
+            window.programStudiChart = new Chart(ctx, {
+                type: 'doughnut',
                 data: {
                     labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
                     datasets: [{
-                        label: 'Jumlah Skripsi per Program Studi',
-                        data: [stats.es, stats.ps, stats.mbs],
+                        data: [
+                            aggregateData.ekonomiSyariah,
+                            aggregateData.perbankanSyariah,
+                            aggregateData.manajemenBisnisSyariah
+                        ],
                         backgroundColor: [
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
+                            '#e74c3c',
+                            '#f39c12',
+                            '#9b59b6'
                         ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update tahun chart (contoh data tahun)
+        function updateTahunChart() {
+            const ctx = document.getElementById('tahunChart').getContext('2d');
+            
+            // Contoh data tahun (dalam implementasi nyata, data ini harus dihitung dari data sebenarnya)
+            const tahunData = {
+                '2021': 15,
+                '2022': 22,
+                '2023': aggregateData.tahunIni
+            };
+            
+            if (window.tahunChart) {
+                window.tahunChart.destroy();
+            }
+            
+            window.tahunChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(tahunData),
+                    datasets: [{
+                        label: 'Jumlah Skripsi',
+                        data: Object.values(tahunData),
+                        backgroundColor: '#3498db',
                         borderWidth: 1
                     }]
                 },
@@ -194,25 +507,42 @@
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
+                            beginAtZero: true
                         }
                     }
                 }
             });
         }
-
-        // Fungsi utama yang dijalankan saat halaman dimuat
-        async function initDashboard() {
-            const data = await fetchData();
-            const stats = processData(data);
-            updateDashboard(stats);
+        
+        // Refresh data
+        function refreshData() {
+            // Show loading state
+            document.getElementById('data-table').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <div class="loading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // Reset card values temporarily
+            document.getElementById('total-skripsi').textContent = '0';
+            document.getElementById('tahun-ini').textContent = '0';
+            document.getElementById('ekonomi-syariah').textContent = '0';
+            document.getElementById('perbankan-syariah').textContent = '0';
+            document.getElementById('manajemen-bisnis-syariah').textContent = '0';
+            
+            // Reload data
+            loadAggregateData();
+            loadTableData();
+            
+            // Show notification
+            alert('Data berhasil diperbarui!');
         }
-
-        // Jalankan dashboard saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
 </body>
 </html>
