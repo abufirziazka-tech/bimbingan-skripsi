@@ -156,12 +156,17 @@
         .stat-card {
             text-align: center;
             padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         
         .stat-card i {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            color: var(--primary-color);
         }
         
         .stat-card h2 {
@@ -173,6 +178,11 @@
         .stat-card p {
             color: #6c757d;
             margin: 0;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            margin-bottom: 30px;
         }
         
         /* Form Styling */
@@ -247,6 +257,10 @@
             
             #content {
                 width: calc(100% - 80px);
+            }
+            
+            .stat-card {
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -332,6 +346,48 @@
         <!-- Page Content -->
         <div id="content">
             <div class="container-fluid">
+                <!-- Stats Section - Added to the default page -->
+                <div class="stats-section">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-card-icon" style="color: #3498db;">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h2 id="totalBimbinganStat">0</h2>
+                                <p>Total Bimbingan</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-card-icon" style="color: #27ae60;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h2 id="selesaiBimbinganStat">0</h2>
+                                <p>Selesai</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-card-icon" style="color: #f39c12;">
+                                    <i class="fas fa-spinner"></i>
+                                </div>
+                                <h2 id="prosesBimbinganStat">0</h2>
+                                <p>Dalam Proses</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="stat-card-icon" style="color: #e74c3c;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h2 id="earlyWarningStat">0</h2>
+                                <p>Early Warning</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Bimbingan Section -->
                 <div id="bimbinganContent">
                     <!-- Pengajuan Proposal -->
@@ -907,6 +963,7 @@
                 success: function(response) {
                     bimbinganData = response;
                     loadBimbinganData();
+                    updateStatsCards();
                 },
                 error: function(error) {
                     console.error('Error loading bimbingan data:', error);
@@ -940,11 +997,21 @@
                 },
                 success: function(response) {
                     earlyWarningData = response;
+                    updateStatsCards();
                 },
                 error: function(error) {
                     console.error('Error loading early warning data:', error);
                 }
             });
+        }
+        
+        // Update stats cards on the default page
+        function updateStatsCards() {
+            // Update stat cards with actual data
+            $('#totalBimbinganStat').text(bimbinganData.length);
+            $('#selesaiBimbinganStat').text(bimbinganData.filter(item => item.Status === 'Selesai').length);
+            $('#prosesBimbinganStat').text(bimbinganData.filter(item => item.Status === 'Dalam Proses').length);
+            $('#earlyWarningStat').text(earlyWarningData.length);
         }
         
         // Initialize tahun akademik options
