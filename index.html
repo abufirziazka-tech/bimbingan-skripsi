@@ -3,163 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Skripsi & Bimbingan</title>
-    
+    <title>Dashboard Skripsi dan Bimbingan</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
-    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
         :root {
-            --primary-color: #3b5998;
-            --secondary-color: #8b9dc3;
-            --accent-color: #dfe3ee;
-            --text-color: #333;
-            --light-bg: #f7f7f7;
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-color);
+            font-family: 'Nunito', 'Segoe UI', sans-serif;
+            background-color: #f8f9fc;
         }
         
-        .dashboard-container {
+        #wrapper {
             display: flex;
-            min-height: 100vh;
         }
         
-        .sidebar {
-            width: 250px;
-            background-color: var(--primary-color);
-            color: white;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #224abe 100%);
+            color: #fff;
             transition: all 0.3s;
-            z-index: 1000;
+            min-height: 100vh;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
         }
         
-        .sidebar-header {
-            padding: 20px;
-            background-color: var(--secondary-color);
-        }
-        
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .sidebar-menu li {
-            padding: 0;
-            margin: 0;
-        }
-        
-        .sidebar-menu a {
-            color: white;
-            padding: 15px 20px;
-            display: block;
+        #sidebar .sidebar-brand {
+            height: 70px;
             text-decoration: none;
-            transition: background 0.3s;
-        }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: var(--secondary-color);
-            border-left: 4px solid white;
-        }
-        
-        .sidebar-menu i {
-            margin-right: 10px;
-            width: 20px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
             text-align: center;
-        }
-        
-        .sub-menu {
-            list-style: none;
-            padding-left: 30px;
-            background-color: rgba(255, 255, 255, 0.1);
-            display: none;
-        }
-        
-        .sub-menu.active {
-            display: block;
-        }
-        
-        .sub-menu a {
-            padding: 12px 15px;
-            font-size: 0.9em;
-        }
-        
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 20px;
-        }
-        
-        .header {
-            background-color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            z-index: 1;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+        }
+        
+        #sidebar .sidebar-brand .sidebar-brand-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        #sidebar .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 1rem 0;
+        }
+        
+        #sidebar ul.components {
+            padding: 0;
+        }
+        
+        #sidebar ul li a {
+            padding: 1rem;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        #sidebar ul li a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        #sidebar ul li a i {
+            margin-right: 0.5rem;
+        }
+        
+        #sidebar ul li.active > a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+        
+        #sidebar .sub-menu {
+            background: rgba(0, 0, 0, 0.2);
+            padding-left: 20px;
+        }
+        
+        #content {
+            width: 100%;
+            padding: 20px;
+            overflow-x: auto;
         }
         
         .card {
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
             border: none;
         }
         
         .card-header {
-            background-color: white;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-        }
-        
-        .tab-content {
-            padding: 20px;
-        }
-        
-        .stats-card {
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .stats-number {
-            font-size: 2.5rem;
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 0.75rem 1.25rem;
             font-weight: bold;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--secondary-color);
+            font-weight: 600;
+            border: none;
+            padding: 0.75rem 1rem;
+        }
+        
+        .nav-tabs .nav-link.active {
             color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
         }
         
-        .stats-label {
-            font-size: 0.9rem;
-            color: #777;
+        .stat-card {
+            border-left: 4px solid;
+            border-radius: 5px;
         }
         
-        .content-section {
-            display: none;
+        .stat-card.primary {
+            border-left-color: var(--primary-color);
         }
         
-        .content-section.active {
-            display: block;
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+        
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+        
+        .stat-card.danger {
+            border-left-color: var(--danger-color);
+        }
+        
+        .table-responsive {
+            max-height: 500px;
+        }
+        
+        .similarity-check {
+            background-color: #f8f9fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .similarity-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .high-similarity {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .medium-similarity {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .low-similarity {
+            background-color: #d1ecf1;
+            color: #0c5460;
         }
         
         .upload-area {
-            border: 2px dashed #ccc;
-            padding: 30px;
+            border: 2px dashed #dee2e6;
+            padding: 20px;
             text-align: center;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -170,559 +195,677 @@
             border-color: var(--primary-color);
         }
         
-        .similarity-check {
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            margin-top: 20px;
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
         }
         
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-left: -250px;
-            }
-            
-            .sidebar.active {
-                margin-left: 0;
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .main-content.active {
-                margin-left: 250px;
-            }
-            
-            .menu-toggle {
-                display: block;
-            }
+        .filter-section {
+            background-color: #f8f9fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar Menu -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h4>Dashboard Skripsi</h4>
-            </div>
-            <ul class="sidebar-menu">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-graduation-cap sidebar-brand-icon"></i>
+                <span class="brand-text">Sistem Skripsi</span>
+            </a>
+            
+            <div class="sidebar-divider"></div>
+            
+            <ul class="components">
                 <li>
-                    <a href="#bimbingan" class="menu-item active" data-menu="bimbingan">
+                    <a href="#bimbingan" data-bs-toggle="tab" class="nav-link active">
                         <i class="fas fa-chalkboard-teacher"></i> Bimbingan
                     </a>
-                    <ul class="sub-menu active">
-                        <li><a href="#pengajuan-proposal" class="submenu-item" data-submenu="pengajuan-proposal">Pengajuan Proposal</a></li>
-                        <li><a href="#data-bimbingan" class="submenu-item" data-submenu="data-bimbingan">Data Bimbingan</a></li>
-                        <li><a href="#tahap-bimbingan" class="submenu-item" data-submenu="tahap-bimbingan">Tahap Bimbingan</a></li>
-                        <li><a href="#status-bimbingan" class="submenu-item" data-submenu="status-bimbingan">Status Bimbingan</a></li>
-                        <li><a href="#early-warning" class="submenu-item" data-submenu="early-warning">Early Warning</a></li>
+                    <ul class="sub-menu">
+                        <li><a href="#pengajuan-proposal" data-bs-toggle="tab"><i class="fas fa-file-upload"></i> Pengajuan Proposal</a></li>
+                        <li><a href="#data-bimbingan" data-bs-toggle="tab"><i class="fas fa-database"></i> Data Bimbingan</a></li>
+                        <li><a href="#tahap-bimbingan" data-bs-toggle="tab"><i class="fas fa-tasks"></i> Tahap Bimbingan</a></li>
+                        <li><a href="#status-bimbingan" data-bs-toggle="tab"><i class="fas fa-clipboard-check"></i> Status Bimbingan</a></li>
+                        <li><a href="#early-warning" data-bs-toggle="tab"><i class="fas fa-exclamation-triangle"></i> Early Warning</a></li>
                     </ul>
                 </li>
+                
                 <li>
-                    <a href="#skripsi" class="menu-item" data-menu="skripsi">
+                    <a href="#skripsi" data-bs-toggle="tab" class="nav-link">
                         <i class="fas fa-book"></i> Skripsi
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="#database-skripsi" class="submenu-item" data-submenu="database-skripsi">Database Skripsi</a></li>
-                        <li><a href="#upload-skripsi" class="submenu-item" data-submenu="upload-skripsi">Upload Skripsi Final</a></li>
+                        <li><a href="#database-skripsi" data-bs-toggle="tab"><i class="fas fa-search"></i> Database Skripsi</a></li>
+                        <li><a href="#upload-skripsi" data-bs-toggle="tab"><i class="fas fa-upload"></i> Upload Skripsi Final</a></li>
                     </ul>
                 </li>
+                
                 <li>
-                    <a href="#statistik" class="menu-item" data-menu="statistik">
+                    <a href="#statistik" data-bs-toggle="tab" class="nav-link">
                         <i class="fas fa-chart-bar"></i> Statistik
                     </a>
                 </li>
             </ul>
         </div>
         
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <h3 id="content-title">Bimbingan - Pengajuan Proposal</h3>
-                <div class="user-info">
-                    <span id="user-name">Mahasiswa</span>
-                    <img src="https://via.placeholder.com/40" class="rounded-circle ms-2" alt="User">
-                </div>
-            </div>
-            
-            <!-- Bimbingan Content -->
-            <div id="bimbingan-content" class="content-section active">
-                <!-- Pengajuan Proposal -->
-                <div id="pengajuan-proposal" class="sub-content active">
-                    <div class="card">
-                        <div class="card-header">
-                            Pengajuan Proposal Skripsi
+        <!-- Content -->
+        <div id="content">
+            <div class="tab-content">
+                <!-- Tab Bimbingan -->
+                <div class="tab-pane fade show active" id="bimbingan">
+                    <h2 class="mb-4">Dashboard Bimbingan Skripsi</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card primary h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Bimbingan</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-bimbingan">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <form id="proposal-form">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="nim" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" id="nim" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="nama" class="form-label">Nama Mahasiswa</label>
-                                        <input type="text" class="form-control" id="nama" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="program-studi" class="form-label">Program Studi</label>
-                                        <select class="form-select" id="program-studi" required>
-                                            <option value="">Pilih Program Studi</option>
-                                            <option value="Ekonomi Syariah">Ekonomi Syariah</option>
-                                            <option value="Perbankan Syariah">Perbankan Syariah</option>
-                                            <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="tahun-akademik" class="form-label">Tahun Akademik</label>
-                                        <input type="text" class="form-control" id="tahun-akademik" required>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card success h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Selesai</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="bimbingan-selesai">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="judul-proposal" class="form-label">Judul Proposal</label>
-                                    <textarea class="form-control" id="judul-proposal" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card warning h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Dalam Proses</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="bimbingan-proses">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <div class="upload-area" id="upload-proposal">
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card danger h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Early Warning</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-warning">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <ul class="nav nav-tabs" id="bimbinganTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pengajuan-tab" data-bs-toggle="tab" data-bs-target="#pengajuan-proposal" type="button" role="tab">Pengajuan Proposal</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="data-tab" data-bs-toggle="tab" data-bs-target="#data-bimbingan" type="button" role="tab">Data Bimbingan</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tahap-tab" data-bs-toggle="tab" data-bs-target="#tahap-bimbingan" type="button" role="tab">Tahap Bimbingan</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-bimbingan" type="button" role="tab">Status Bimbingan</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="warning-tab" data-bs-toggle="tab" data-bs-target="#early-warning" type="button" role="tab">Early Warning</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="bimbinganTabContent">
+                        <!-- Pengajuan Proposal -->
+                        <div class="tab-pane fade show active" id="pengajuan-proposal" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Pengajuan Proposal Skripsi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="similarity-check">
+                                        <h6>Cek Similarity Judul</h6>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="judul-proposal" placeholder="Masukkan judul proposal Anda">
+                                            <button class="btn btn-primary" type="button" id="cek-similarity">Cek Similarity</button>
+                                        </div>
+                                        <div id="similarity-result" class="similarity-result d-none">
+                                            <h6>Hasil Pengecekan Similarity</h6>
+                                            <p>Tingkat kesamaan: <span id="similarity-percent">0%</span></p>
+                                            <p id="similarity-message"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6>Upload Proposal</h6>
+                                    <div class="upload-area" id="upload-area">
                                         <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                                        <p>Klik atau seret file proposal ke sini untuk mengunggah</p>
-                                        <input type="file" id="file-proposal" hidden accept=".doc,.docx,.pdf">
-                                        <div id="file-name" class="mt-2"></div>
+                                        <p>Klik atau seret file ke sini untuk mengupload</p>
+                                        <input type="file" id="file-upload" class="d-none" accept=".doc,.docx,.pdf">
+                                        <div class="progress mt-3 d-none" id="upload-progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="similarity-check" id="similarity-result" style="display: none;">
-                                    <h5>Hasil Pengecekan Similarity</h5>
-                                    <div class="progress mb-3">
-                                        <div id="similarity-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                    </div>
-                                    <p id="similarity-message"></p>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Ajukan Proposal</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Data Bimbingan -->
-                <div id="data-bimbingan" class="sub-content">
-                    <div class="card">
-                        <div class="card-header">
-                            Data Bimbingan
-                        </div>
-                        <div class="card-body">
-                            <table id="table-bimbingan" class="table table-striped" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>NIM</th>
-                                        <th>Nama</th>
-                                        <th>Dosen Pembimbing 1</th>
-                                        <th>Dosen Pembimbing 2</th>
-                                        <th>Judul Proposal</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data akan diisi melalui JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tahap Bimbingan -->
-                <div id="tahap-bimbingan" class="sub-content">
-                    <div class="card">
-                        <div class="card-header">
-                            Tahap Bimbingan
-                        </div>
-                        <div class="card-body">
-                            <div class="progress-container mb-4">
-                                <h5>Progress Bimbingan</h5>
-                                <div class="progress mb-3">
-                                    <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
-                                </div>
-                            </div>
-                            
-                            <ul class="nav nav-tabs" id="tahapTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="tahap1-tab" data-bs-toggle="tab" data-bs-target="#tahap1" type="button" role="tab">Tahap 1</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tahap2-tab" data-bs-toggle="tab" data-bs-target="#tahap2" type="button" role="tab">Tahap 2</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tahap3-tab" data-bs-toggle="tab" data-bs-target="#tahap3" type="button" role="tab">Tahap 3</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content p-3 border border-top-0" id="tahapTabsContent">
-                                <div class="tab-pane fade show active" id="tahap1" role="tabpanel">
-                                    <h5>Pengajuan Proposal</h5>
-                                    <p>Status: <span class="badge bg-success">Selesai</span></p>
-                                    <p>Tanggal Selesai: 15 Maret 2023</p>
-                                    <p>Komentar Dosen: Proposal sudah cukup baik, lanjutkan ke tahap berikutnya.</p>
-                                </div>
-                                <div class="tab-pane fade" id="tahap2" role="tabpanel">
-                                    <h5>Bimbingan Bab 1-3</h5>
-                                    <p>Status: <span class="badge bg-warning">Dalam Proses</span></p>
-                                    <p>Progress: 65%</p>
-                                    <div class="mt-3">
-                                        <h6>Upload Revisi</h6>
-                                        <input type="file" class="form-control">
-                                        <button class="btn btn-primary mt-2">Upload</button>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="tahap3" role="tabpanel">
-                                    <h5>Bimbingan Bab 4-5 dan Kesimpulan</h5>
-                                    <p>Status: <span class="badge bg-secondary">Belum Dimulai</span></p>
+                                    <button class="btn btn-success" id="btn-submit" disabled>Ajukan Proposal</button>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Data Bimbingan -->
+                        <div class="tab-pane fade" id="data-bimbingan" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Data Bimbingan Skripsi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover" id="tabel-bimbingan">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIM</th>
+                                                    <th>Nama Mahasiswa</th>
+                                                    <th>Judul Proposal</th>
+                                                    <th>Dosen Pembimbing 1</th>
+                                                    <th>Dosen Pembimbing 2</th>
+                                                    <th>Tanggal Pengajuan</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data akan diisi melalui JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tahap Bimbingan -->
+                        <div class="tab-pane fade" id="tahap-bimbingan" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Tahap Bimbingan Skripsi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover" id="tabel-tahap">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIM</th>
+                                                    <th>Nama Mahasiswa</th>
+                                                    <th>Tahap</th>
+                                                    <th>Tanggal Bimbingan</th>
+                                                    <th>Komentar Dosen</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data akan diisi melalui JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Bimbingan -->
+                        <div class="tab-pane fade" id="status-bimbingan" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Status Bimbingan Skripsi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover" id="tabel-status">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIM</th>
+                                                    <th>Nama Mahasiswa</th>
+                                                    <th>Progress</th>
+                                                    <th>Pembimbing 1</th>
+                                                    <th>Pembimbing 2</th>
+                                                    <th>Status</th>
+                                                    <th>Estimasi Selesai</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data akan diisi melalui JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Early Warning -->
+                        <div class="tab-pane fade" id="early-warning" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Early Warning Mahasiswa</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Sistem ini memberikan peringatan dini kepada mahasiswa semester 11-14 yang belum menyelesaikan skripsi.
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover" id="tabel-warning">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIM</th>
+                                                    <th>Nama Mahasiswa</th>
+                                                    <th>Semester</th>
+                                                    <th>Program Studi</th>
+                                                    <th>Judul Proposal</th>
+                                                    <th>Status</th>
+                                                    <th>Rekomendasi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data akan diisi melalui JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Status Bimbingan -->
-                <div id="status-bimbingan" class="sub-content">
+                <!-- Tab Skripsi -->
+                <div class="tab-pane fade" id="skripsi">
+                    <h2 class="mb-4">Database Skripsi</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card primary h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Skripsi</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-skripsi">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card success h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Lulus</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="skripsi-lulus">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-graduation-cap fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card warning h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Dalam Proses</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="skripsi-proses">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card stat-card info h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Program Studi</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-university fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <ul class="nav nav-tabs" id="skripsiTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="database-tab" data-bs-toggle="tab" data-bs-target="#database-skripsi" type="button" role="tab">Database Skripsi</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="upload-final-tab" data-bs-toggle="tab" data-bs-target="#upload-skripsi" type="button" role="tab">Upload Skripsi Final</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="skripsiTabContent">
+                        <!-- Database Skripsi -->
+                        <div class="tab-pane fade show active" id="database-skripsi" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Database Skripsi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="filter-section">
+                                        <h6>Filter Pencarian</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="filter-tahun">Tahun Lulus</label>
+                                                    <select class="form-control" id="filter-tahun">
+                                                        <option value="">Semua Tahun</option>
+                                                        <!-- Options akan diisi melalui JavaScript -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="filter-prodi">Program Studi</label>
+                                                    <select class="form-control" id="filter-prodi">
+                                                        <option value="">Semua Program Studi</option>
+                                                        <option value="Ekonomi Syariah">Ekonomi Syariah</option>
+                                                        <option value="Perbankan Syariah">Perbankan Syariah</option>
+                                                        <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="filter-status">Status</label>
+                                                    <select class="form-control" id="filter-status">
+                                                        <option value="">Semua Status</option>
+                                                        <option value="Lulus">Lulus</option>
+                                                        <option value="Dalam Proses">Dalam Proses</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="filter-judul">Judul/NIM</label>
+                                                    <input type="text" class="form-control" id="filter-judul" placeholder="Cari judul atau NIM">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary mt-3" id="btn-filter">Terapkan Filter</button>
+                                    </div>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover" id="tabel-skripsi">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>NIM</th>
+                                                    <th>Nama Mahasiswa</th>
+                                                    <th>Judul Skripsi</th>
+                                                    <th>Program Studi</th>
+                                                    <th>Tahun Lulus</th>
+                                                    <th>Dosen Pembimbing</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Data akan diisi melalui JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Upload Skripsi Final -->
+                        <div class="tab-pane fade" id="upload-skripsi" role="tabpanel">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5>Upload Skripsi Final</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Upload skripsi final yang sudah disetujui oleh pembimbing dan telah melalui proses ujian.
+                                    </div>
+                                    
+                                    <form id="form-upload-skripsi">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="nim">NIM</label>
+                                                    <input type="text" class="form-control" id="nim" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="nama">Nama Mahasiswa</label>
+                                                    <input type="text" class="form-control" id="nama" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="judul">Judul Skripsi</label>
+                                                    <textarea class="form-control" id="judul" rows="2" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="prodi">Program Studi</label>
+                                                    <select class="form-control" id="prodi" required>
+                                                        <option value="">Pilih Program Studi</option>
+                                                        <option value="Ekonomi Syariah">Ekonomi Syariah</option>
+                                                        <option value="Perbankan Syariah">Perbankan Syariah</option>
+                                                        <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="pembimbing1">Dosen Pembimbing 1</label>
+                                                    <input type="text" class="form-control" id="pembimbing1" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="pembimbing2">Dosen Pembimbing 2</label>
+                                                    <input type="text" class="form-control" id="pembimbing2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="tahun">Tahun Lulus</label>
+                                                    <input type="number" class="form-control" id="tahun" min="2000" max="2030" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="status">Status</label>
+                                                    <select class="form-control" id="status" required>
+                                                        <option value="Lulus">Lulus</option>
+                                                        <option value="Dalam Proses">Dalam Proses</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="file-skripsi" class="form-label">File Skripsi Final (PDF)</label>
+                                            <input class="form-control" type="file" id="file-skripsi" accept=".pdf" required>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">Upload Skripsi</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab Statistik -->
+                <div class="tab-pane fade" id="statistik">
+                    <h2 class="mb-4">Statistik Bimbingan dan Skripsi</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Statistik Status Bimbingan</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="statusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Distribusi Program Studi</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="prodiChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Trend Kelulusan per Tahun</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="tahunChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Rata-rata Waktu Penyelesaian</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="waktuChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="card">
                         <div class="card-header">
-                            Status Bimbingan
+                            <h5>Analisis Data</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="card stats-card">
-                                        <div class="stats-number">42</div>
-                                        <div class="stats-label">Proposal Diajukan</div>
+                                    <div class="card stat-card info h-100">
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Rata-rata Penyelesaian</div>
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="rata-penyelesaian">6.2 bulan</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-4">
-                                    <div class="card stats-card">
-                                        <div class="stats-number">28</div>
-                                        <div class="stats-label">Sedang Dibimbing</div>
+                                    <div class="card stat-card success h-100">
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tingkat Kelulusan</div>
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="tingkat-kelulusan">78.5%</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-4">
-                                    <div class="card stats-card">
-                                        <div class="stats-number">14</div>
-                                        <div class="stats-label">Selesai</div>
+                                    <div class="card stat-card primary h-100">
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Jumlah Dosen Pembimbing</div>
+                                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="jumlah-dosen">24</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="mt-4">
-                                <h5>Detail Status Bimbingan</h5>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>NIM</th>
-                                            <th>Nama</th>
-                                            <th>Judul</th>
-                                            <th>Status</th>
-                                            <th>Progress</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>20010101</td>
-                                            <td>Ahmad Susanto</td>
-                                            <td>Analisis Sistem Ekonomi Syariah di Indonesia</td>
-                                            <td><span class="badge bg-warning">Dalam Proses</span></td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>20010102</td>
-                                            <td>Siti Rahayu</td>
-                                            <td>Perbandingan Kinerja Bank Syariah dan Konvensional</td>
-                                            <td><span class="badge bg-success">Selesai</span></td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>20010103</td>
-                                            <td>Budi Santoso</td>
-                                            <td>Strategi Pemasaran Produk Perbankan Syariah</td>
-                                            <td><span class="badge bg-primary">Pengajuan</span></td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Early Warning -->
-                <div id="early-warning" class="sub-content">
-                    <div class="card">
-                        <div class="card-header">
-                            Early Warning System
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i> Sistem ini memberikan peringatan dini kepada mahasiswa semester 11-14 yang belum menyelesaikan skripsi.
-                            </div>
-                            
-                            <table id="table-early-warning" class="table table-striped" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>NIM</th>
-                                        <th>Nama</th>
-                                        <th>Program Studi</th>
-                                        <th>Semester</th>
-                                        <th>Status</th>
-                                        <th>Prediksi Kelulusan</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>18010101</td>
-                                        <td>Rina Wijaya</td>
-                                        <td>Ekonomi Syariah</td>
-                                        <td>12</td>
-                                        <td><span class="badge bg-danger">Terlambat</span></td>
-                                        <td>Melebihi Batas</td>
-                                        <td><button class="btn btn-sm btn-warning">Kirim Peringatan</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>18010102</td>
-                                        <td>Dodi Pratama</td>
-                                        <td>Perbankan Syariah</td>
-                                        <td>13</td>
-                                        <td><span class="badge bg-danger">Kritis</span></td>
-                                        <td>Melebihi Batas</td>
-                                        <td><button class="btn btn-sm btn-warning">Kirim Peringatan</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>19010101</td>
-                                        <td>Fajar Nugroho</td>
-                                        <td>Manajemen Bisnis Syariah</td>
-                                        <td>11</td>
-                                        <td><span class="badge bg-warning">Peringatan</span></td>
-                                        <td>Mendekati Batas</td>
-                                        <td><button class="btn btn-sm btn-warning">Kirim Peringatan</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Skripsi Content -->
-            <div id="skripsi-content" class="content-section">
-                <!-- Database Skripsi -->
-                <div id="database-skripsi" class="sub-content active">
-                    <div class="card">
-                        <div class="card-header">
-                            Database Skripsi
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label for="filter-tahun" class="form-label">Tahun Lulus</label>
-                                    <select class="form-select" id="filter-tahun">
-                                        <option value="">Semua Tahun</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2022">2022</option>
-                                        <option value="2021">2021</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="filter-prodi" class="form-label">Program Studi</label>
-                                    <select class="form-select" id="filter-prodi">
-                                        <option value="">Semua Program Studi</option>
-                                        <option value="Ekonomi Syariah">Ekonomi Syariah</option>
-                                        <option value="Perbankan Syariah">Perbankan Syariah</option>
-                                        <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="filter-status" class="form-label">Status</label>
-                                    <select class="form-select" id="filter-status">
-                                        <option value="">Semua Status</option>
-                                        <option value="lulus">Lulus</option>
-                                        <option value="proses">Dalam Proses</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="search-judul" class="form-label">Pencarian Judul</label>
-                                    <input type="text" class="form-control" id="search-judul" placeholder="Cari judul skripsi">
-                                </div>
-                            </div>
-                            
-                            <table id="table-skripsi" class="table table-striped" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Judul</th>
-                                        <th>Penulis</th>
-                                        <th>Tahun</th>
-                                        <th>Program Studi</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Analisis Sistem Ekonomi Syariah di Indonesia</td>
-                                        <td>Ahmad Susanto</td>
-                                        <td>2023</td>
-                                        <td>Ekonomi Syariah</td>
-                                        <td><span class="badge bg-success">Lulus</span></td>
-                                        <td><button class="btn btn-sm btn-info">Lihat Detail</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Perbandingan Kinerja Bank Syariah dan Konvensional</td>
-                                        <td>Siti Rahayu</td>
-                                        <td>2023</td>
-                                        <td>Perbankan Syariah</td>
-                                        <td><span class="badge bg-success">Lulus</span></td>
-                                        <td><button class="btn btn-sm btn-info">Lihat Detail</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Strategi Pemasaran Produk Perbankan Syariah</td>
-                                        <td>Budi Santoso</td>
-                                        <td>2023</td>
-                                        <td>Manajemen Bisnis Syariah</td>
-                                        <td><span class="badge bg-warning">Dalam Proses</span></td>
-                                        <td><button class="btn btn-sm btn-info">Lihat Detail</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Upload Skripsi Final -->
-                <div id="upload-skripsi" class="sub-content">
-                    <div class="card">
-                        <div class="card-header">
-                            Upload Skripsi Final
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Unggah skripsi final yang telah disetujui oleh pembimbing dan telah melalui proses revisi.
-                            </div>
-                            
-                            <form id="upload-skripsi-form">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="skripsi-nim" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" id="skripsi-nim" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="skripsi-nama" class="form-label">Nama Mahasiswa</label>
-                                        <input type="text" class="form-control" id="skripsi-nama" required>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="skripsi-prodi" class="form-label">Program Studi</label>
-                                        <select class="form-select" id="skripsi-prodi" required>
-                                            <option value="">Pilih Program Studi</option>
-                                            <option value="Ekonomi Syariah">Ekonomi Syariah</option>
-                                            <option value="Perbankan Syariah">Perbankan Syariah</option>
-                                            <option value="Manajemen Bisnis Syariah">Manajemen Bisnis Syariah</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="skripsi-tahun" class="form-label">Tahun Lulus</label>
-                                        <input type="text" class="form-control" id="skripsi-tahun" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="skripsi-judul" class="form-label">Judul Skripsi</label>
-                                    <textarea class="form-control" id="skripsi-judul" rows="3" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="skripsi-abstrak" class="form-label">Abstrak</label>
-                                    <textarea class="form-control" id="skripsi-abstrak" rows="5" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="upload-area" id="upload-skripsi-file">
-                                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                                        <p>Klik atau seret file skripsi final ke sini untuk mengunggah (Format PDF)</p>
-                                        <input type="file" id="file-skripsi" hidden accept=".pdf">
-                                        <div id="skripsi-file-name" class="mt-2"></div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Upload Skripsi Final</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Statistik Content -->
-            <div id="statistik-content" class="content-section">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Statistik Kelulusan per Tahun
-                            </div>
-                            <div class="card-body">
-                                <canvas id="chart-kelulusan" height="250"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Distribusi Mahasiswa per Program Studi
-                            </div>
-                            <div class="card-body">
-                                <canvas id="chart-prodi" height="250"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                Progress Bimbingan
-                            </div>
-                            <div class="card-body">
-                                <canvas id="chart-bimbingan" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Rata-rata Waktu Penyelesaian Skripsi (bulan)
-                            </div>
-                            <div class="card-body">
-                                <canvas id="chart-waktu" height="250"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Status Mahasiswa Semester Akhir
-                            </div>
-                            <div class="card-body">
-                                <canvas id="chart-status" height="250"></canvas>
+                                <h5>Rekomendasi</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item">1. Meningkatkan frekuensi bimbingan untuk mahasiswa semester 10+</li>
+                                    <li class="list-group-item">2. Memberikan perhatian lebih pada program studi Manajemen Bisnis Syariah yang memiliki tingkat kelulusan lebih rendah</li>
+                                    <li class="list-group-item">3. Mempertimbangkan penambahan dosen pembimbing untuk mengurangi beban bimbingan</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -731,348 +874,428 @@
         </div>
     </div>
 
-    <!-- Bootstrap & jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- DataTables -->
-    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
-    
     <script>
-        // URL Google Apps Script Web App
-        const scriptUrl = 'https://script.google.com/macros/s/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/exec';
+        // URL Apps Script Web App
+        const WEB_APP_URL = 'https://script.google.com/macros/s/APP_SCRIPT_ID/exec';
         
+        // Data untuk contoh
+        let bimbinganData = [];
+        let skripsiData = [];
+        let warningData = [];
+        
+        // Inisialisasi dashboard
         $(document).ready(function() {
-            // Inisialisasi DataTables
-            $('#table-bimbingan').DataTable();
-            $('#table-early-warning').DataTable();
-            $('#table-skripsi').DataTable();
+            // Load data dari Google Sheets
+            loadBimbinganData();
+            loadSkripsiData();
+            loadWarningData();
             
-            // Navigasi menu
-            $('.menu-item').click(function(e) {
+            // Event handlers
+            $('#upload-area').on('click', function() {
+                $('#file-upload').click();
+            });
+            
+            $('#file-upload').on('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    $('#upload-area p').html(`File dipilih: <strong>${fileName}</strong>`);
+                    $('#btn-submit').prop('disabled', false);
+                }
+            });
+            
+            $('#cek-similarity').on('click', function() {
+                const judul = $('#judul-proposal').val();
+                if (judul.trim() === '') {
+                    alert('Masukkan judul proposal terlebih dahulu');
+                    return;
+                }
+                
+                checkSimilarity(judul);
+            });
+            
+            $('#btn-filter').on('click', function() {
+                filterSkripsi();
+            });
+            
+            $('#form-upload-skripsi').on('submit', function(e) {
                 e.preventDefault();
-                
-                // Update menu aktif
-                $('.menu-item').removeClass('active');
-                $(this).addClass('active');
-                
-                // Tampilkan submenu jika ada
-                const subMenu = $(this).siblings('.sub-menu');
-                if (subMenu.length) {
-                    $('.sub-menu').removeClass('active');
-                    subMenu.addClass('active');
-                }
-                
-                // Tampilkan konten yang sesuai
-                const menu = $(this).data('menu');
-                $('.content-section').removeClass('active');
-                $(`#${menu}-content`).addClass('active');
-                
-                // Update judul
-                $('#content-title').text($(this).text().trim());
+                uploadSkripsiFinal();
             });
             
-            // Navigasi submenu
-            $('.submenu-item').click(function(e) {
-                e.preventDefault();
-                
-                // Update submenu aktif
-                $('.submenu-item').removeClass('active');
-                $(this).addClass('active');
-                
-                // Tampilkan konten sub yang sesuai
-                const submenu = $(this).data('submenu');
-                $('.sub-content').removeClass('active');
-                $(`#${submenu}`).addClass('active');
-                
-                // Update judul
-                const menuTitle = $(this).closest('.sidebar-menu').find('.menu-item.active').text().trim();
-                $('#content-title').text(`${menuTitle} - ${$(this).text()}`);
-            });
-            
-            // Handle upload area
-            $('#upload-proposal').click(function() {
-                $('#file-proposal').click();
-            });
-            
-            $('#upload-skripsi-file').click(function() {
-                $('#file-skripsi').click();
-            });
-            
-            $('#file-proposal').change(function() {
-                if (this.files && this.files[0]) {
-                    const fileName = this.files[0].name;
-                    $('#file-name').text(`File terpilih: ${fileName}`);
-                    
-                    // Simulasi pengecekan similarity
-                    $('#similarity-result').show();
-                    
-                    // Acak persentase similarity (0-30% untuk demo)
-                    const similarityPercent = Math.floor(Math.random() * 30);
-                    $('#similarity-progress')
-                        .css('width', `${similarityPercent}%`)
-                        .attr('aria-valuenow', similarityPercent)
-                        .text(`${similarityPercent}%`);
-                    
-                    if (similarityPercent > 20) {
-                        $('#similarity-progress').addClass('bg-warning');
-                        $('#similarity-message').html('<i class="fas fa-exclamation-triangle text-warning"></i> Similarity agak tinggi. Pertimbangkan untuk merevisi judul atau konsultasi dengan pembimbing.');
-                    } else {
-                        $('#similarity-progress').addClass('bg-success');
-                        $('#similarity-message').html('<i class="fas fa-check-circle text-success"></i> Similarity rendah. Judul dapat diajukan.');
-                    }
+            // Inisialisasi chart
+            initCharts();
+        });
+        
+        // Fungsi untuk memuat data bimbingan
+        function loadBimbinganData() {
+            $.ajax({
+                url: WEB_APP_URL,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    action: 'getBimbingan'
+                },
+                success: function(data) {
+                    bimbinganData = data;
+                    displayBimbinganData(data);
+                    updateBimbinganStats(data);
+                },
+                error: function(error) {
+                    console.error('Error loading bimbingan data:', error);
+                    // Untuk contoh, gunakan data dummy jika gagal
+                    useDummyData();
                 }
             });
-            
-            $('#file-skripsi').change(function() {
-                if (this.files && this.files[0]) {
-                    const fileName = this.files[0].name;
-                    $('#skripsi-file-name').text(`File terpilih: ${fileName}`);
+        }
+        
+        // Fungsi untuk memuat data skripsi
+        function loadSkripsiData() {
+            $.ajax({
+                url: WEB_APP_URL,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    action: 'getSkripsiFinal'
+                },
+                success: function(data) {
+                    skripsiData = data;
+                    displaySkripsiData(data);
+                    updateSkripsiStats(data);
+                    populateYearFilter(data);
+                },
+                error: function(error) {
+                    console.error('Error loading skripsi data:', error);
                 }
             });
+        }
+        
+        // Fungsi untuk memuat data early warning
+        function loadWarningData() {
+            $.ajax({
+                url: WEB_APP_URL,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    action: 'getEarlyWarning'
+                },
+                success: function(data) {
+                    warningData = data;
+                    displayWarningData(data);
+                    updateWarningStats(data);
+                },
+                error: function(error) {
+                    console.error('Error loading warning data:', error);
+                }
+            });
+        }
+        
+        // Fungsi untuk menampilkan data bimbingan di tabel
+        function displayBimbinganData(data) {
+            const tableBody = $('#tabel-bimbingan tbody');
+            tableBody.empty();
             
-            // Handle form submission
-            $('#proposal-form').submit(function(e) {
-                e.preventDefault();
-                alert('Proposal berhasil diajukan! Data akan diverifikasi oleh admin.');
-                // Di sini akan ada kode untuk mengirim data ke Google Sheets
+            data.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.NIM || ''}</td>
+                        <td>${item.Nama || ''}</td>
+                        <td>${item.Judul || ''}</td>
+                        <td>${item.Pembimbing1 || ''}</td>
+                        <td>${item.Pembimbing2 || ''}</td>
+                        <td>${item.Tanggal || ''}</td>
+                        <td><span class="badge bg-${getStatusColor(item.Status)}">${item.Status || ''}</span></td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+        
+        // Fungsi untuk menampilkan data skripsi di tabel
+        function displaySkripsiData(data) {
+            const tableBody = $('#tabel-skripsi tbody');
+            tableBody.empty();
+            
+            data.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.NIM || ''}</td>
+                        <td>${item.Nama || ''}</td>
+                        <td>${item.Judul || ''}</td>
+                        <td>${item.Prodi || ''}</td>
+                        <td>${item.Tahun || ''}</td>
+                        <td>${item.Pembimbing1 || ''}${item.Pembimbing2 ? ', ' + item.Pembimbing2 : ''}</td>
+                        <td><span class="badge bg-${getStatusColor(item.Status)}">${item.Status || ''}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+        
+        // Fungsi untuk menampilkan data early warning di tabel
+        function displayWarningData(data) {
+            const tableBody = $('#tabel-warning tbody');
+            tableBody.empty();
+            
+            data.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.NIM || ''}</td>
+                        <td>${item.Nama || ''}</td>
+                        <td>${item.Semester || ''}</td>
+                        <td>${item.Prodi || ''}</td>
+                        <td>${item.Judul || ''}</td>
+                        <td><span class="badge bg-warning">${item.Status || 'Perlu Perhatian'}</span></td>
+                        <td>${getRekomendasi(item.Semester)}</td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+        
+        // Fungsi untuk memfilter data skripsi
+        function filterSkripsi() {
+            const tahun = $('#filter-tahun').val();
+            const prodi = $('#filter-prodi').val();
+            const status = $('#filter-status').val();
+            const judul = $('#filter-judul').val().toLowerCase();
+            
+            const filteredData = skripsiData.filter(item => {
+                return (tahun === '' || item.Tahun == tahun) &&
+                       (prodi === '' || item.Prodi === prodi) &&
+                       (status === '' || item.Status === status) &&
+                       (judul === '' || 
+                        (item.Judul && item.Judul.toLowerCase().includes(judul)) ||
+                        (item.NIM && item.NIM.toLowerCase().includes(judul)));
             });
             
-            $('#upload-skripsi-form').submit(function(e) {
-                e.preventDefault();
-                alert('Skripsi final berhasil diupload! Terima kasih.');
-                // Di sini akan ada kode untuk mengirim data ke Google Sheets
-            });
+            displaySkripsiData(filteredData);
+        }
+        
+        // Fungsi untuk mengisi filter tahun
+        function populateYearFilter(data) {
+            const yearFilter = $('#filter-tahun');
+            const years = [...new Set(data.map(item => item.Tahun).filter(year => year))].sort((a, b) => b - a);
             
-            // Filter untuk database skripsi
-            $('#filter-tahun, #filter-prodi, #filter-status, #search-judul').on('change keyup', function() {
-                const table = $('#table-skripsi').DataTable();
-                table.draw();
+            years.forEach(year => {
+                yearFilter.append(`<option value="${year}">${year}</option>`);
             });
+        }
+        
+        // Fungsi untuk mengecek similarity judul
+        function checkSimilarity(judul) {
+            // Simulasi pengecekan similarity
+            const similarityPercent = Math.floor(Math.random() * 100);
+            const resultDiv = $('#similarity-result');
+            resultDiv.removeClass('d-none high-similarity medium-similarity low-similarity');
             
-            // Setup filter custom untuk DataTables
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                const tahun = $('#filter-tahun').val();
-                const prodi = $('#filter-prodi').val();
-                const status = $('#filter-status').val();
-                const searchJudul = $('#search-judul').val().toLowerCase();
-                
-                // Filter tahun
-                if (tahun !== '' && data[2] !== tahun) {
-                    return false;
-                }
-                
-                // Filter prodi
-                if (prodi !== '' && data[3] !== prodi) {
-                    return false;
-                }
-                
-                // Filter status
-                if (status !== '') {
-                    const statusText = data[4].toLowerCase();
-                    if (status === 'lulus' && !statusText.includes('lulus')) {
-                        return false;
-                    }
-                    if (status === 'proses' && !statusText.includes('proses')) {
-                        return false;
-                    }
-                }
-                
-                // Filter pencarian judul
-                if (searchJudul !== '' && !data[0].toLowerCase().includes(searchJudul)) {
-                    return false;
-                }
-                
-                return true;
-            });
-            
-            // Load data from Google Sheets
-            function loadData() {
-                // Load data bimbingan
-                $.ajax({
-                    url: scriptUrl,
-                    method: 'GET',
-                    dataType: 'json',
-                    data: {action: 'getBimbingan'},
-                    success: function(response) {
-                        console.log('Data bimbingan:', response);
-                        // Isi tabel dengan data response
-                    },
-                    error: function(error) {
-                        console.error('Error loading bimbingan data:', error);
-                    }
-                });
-                
-                // Load data early warning
-                $.ajax({
-                    url: scriptUrl,
-                    method: 'GET',
-                    dataType: 'json',
-                    data: {action: 'getEarlyWarning'},
-                    success: function(response) {
-                        console.log('Data early warning:', response);
-                        // Isi tabel dengan data response
-                    },
-                    error: function(error) {
-                        console.error('Error loading early warning data:', error);
-                    }
-                });
-                
-                // Load data skripsi
-                $.ajax({
-                    url: scriptUrl,
-                    method: 'GET',
-                    dataType: 'json',
-                    data: {action: 'getSkripsi'},
-                    success: function(response) {
-                        console.log('Data skripsi:', response);
-                        // Isi tabel dengan data response
-                    },
-                    error: function(error) {
-                        console.error('Error loading skripsi data:', error);
-                    }
-                });
+            if (similarityPercent > 70) {
+                resultDiv.addClass('high-similarity');
+                $('#similarity-message').html('Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Silakan pertimbangkan untuk mengganti judul.');
+            } else if (similarityPercent > 30) {
+                resultDiv.addClass('medium-similarity');
+                $('#similarity-message').html('Judul memiliki kemiripan sedang. Pastikan penelitian Anda memiliki pembeda yang jelas.');
+            } else {
+                resultDiv.addClass('low-similarity');
+                $('#similarity-message').html('Judul memiliki kemiripan rendah. Anda dapat melanjutkan dengan judul ini.');
             }
             
-            // Panggil fungsi load data
-            loadData();
-            
-            // Setup charts
-            const ctxKelulusan = document.getElementById('chart-kelulusan').getContext('2d');
-            const chartKelulusan = new Chart(ctxKelulusan, {
+            $('#similarity-percent').text(similarityPercent + '%');
+        }
+        
+        // Fungsi untuk upload skripsi final
+        function uploadSkripsiFinal() {
+            // Simulasi upload
+            alert('Skripsi berhasil diupload! Data akan diproses dan divalidasi.');
+            $('#form-upload-skripsi')[0].reset();
+        }
+        
+        // Fungsi untuk memperbarui statistik bimbingan
+        function updateBimbinganStats(data) {
+            $('#total-bimbingan').text(data.length);
+            $('#bimbingan-selesai').text(data.filter(item => item.Status === 'Selesai').length);
+            $('#bimbingan-proses').text(data.filter(item => item.Status === 'Dalam Proses').length);
+        }
+        
+        // Fungsi untuk memperbarui statistik skripsi
+        function updateSkripsiStats(data) {
+            $('#total-skripsi').text(data.length);
+            $('#skripsi-lulus').text(data.filter(item => item.Status === 'Lulus').length);
+            $('#skripsi-proses').text(data.filter(item => item.Status === 'Dalam Proses').length);
+        }
+        
+        // Fungsi untuk memperbarui statistik warning
+        function updateWarningStats(data) {
+            $('#total-warning').text(data.length);
+        }
+        
+        // Fungsi untuk mendapatkan warna badge berdasarkan status
+        function getStatusColor(status) {
+            switch(status) {
+                case 'Selesai':
+                case 'Lulus':
+                    return 'success';
+                case 'Dalam Proses':
+                    return 'warning';
+                case 'Perlu Revisi':
+                    return 'danger';
+                default:
+                    return 'secondary';
+            }
+        }
+        
+        // Fungsi untuk mendapatkan rekomendasi berdasarkan semester
+        function getRekomendasi(semester) {
+            if (semester >= 13) return 'Perlu bimbingan intensif dan percepatan penyelesaian';
+            if (semester >= 11) return 'Perlu peningkatan frekuensi bimbingan';
+            return 'Pantau progres secara berkala';
+        }
+        
+        // Fungsi untuk inisialisasi chart
+        function initCharts() {
+            // Chart status bimbingan
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            const statusChart = new Chart(statusCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    labels: ['Selesai', 'Dalam Proses', 'Perlu Revisi', 'Belum Dimulai'],
                     datasets: [{
-                        label: 'Jumlah Kelulusan',
-                        data: [45, 52, 48, 65, 72],
-                        backgroundColor: '#3b5998'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Jumlah Kelulusan per Tahun'
-                        }
-                    }
-                }
-            });
-            
-            const ctxProdi = document.getElementById('chart-prodi').getContext('2d');
-            const chartProdi = new Chart(ctxProdi, {
-                type: 'pie',
-                data: {
-                    labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
-                    datasets: [{
-                        data: [85, 120, 95],
+                        label: 'Jumlah Mahasiswa',
+                        data: [25, 15, 8, 5],
                         backgroundColor: [
-                            '#3b5998',
-                            '#8b9dc3',
-                            '#dfe3ee'
+                            '#1cc88a',
+                            '#f6c23e',
+                            '#e74a3b',
+                            '#858796'
                         ]
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Distribusi Mahasiswa per Program Studi'
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
             });
             
-            const ctxBimbingan = document.getElementById('chart-bimbingan').getContext('2d');
-            const chartBimbingan = new Chart(ctxBimbingan, {
+            // Chart distribusi program studi
+            const prodiCtx = document.getElementById('prodiChart').getContext('2d');
+            const prodiChart = new Chart(prodiCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
+                    datasets: [{
+                        data: [40, 35, 25],
+                        backgroundColor: [
+                            '#4e73df',
+                            '#1cc88a',
+                            '#36b9cc'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Chart trend kelulusan per tahun
+            const tahunCtx = document.getElementById('tahunChart').getContext('2d');
+            const tahunChart = new Chart(tahunCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
                     datasets: [{
-                        label: 'Progress Bimbingan',
-                        data: [30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
-                        borderColor: '#3b5998',
+                        label: 'Jumlah Kelulusan',
+                        data: [12, 19, 15, 22, 18, 25],
+                        borderColor: '#4e73df',
                         tension: 0.1,
                         fill: false
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Progress Bimbingan throughout the Year'
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
             });
             
-            const ctxWaktu = document.getElementById('chart-waktu').getContext('2d');
-            const chartWaktu = new Chart(ctxWaktu, {
+            // Chart rata-rata waktu penyelesaian
+            const waktuCtx = document.getElementById('waktuChart').getContext('2d');
+            const waktuChart = new Chart(waktuCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
                     datasets: [{
-                        label: 'Rata-rata Waktu (bulan)',
-                        data: [8.5, 7.2, 9.1],
-                        backgroundColor: '#8b9dc3'
+                        label: 'Rata-rata (bulan)',
+                        data: [5.8, 6.2, 7.1],
+                        backgroundColor: '#36b9cc'
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Rata-rata Waktu Penyelesaian Skripsi'
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
             });
+        }
+        
+        // Fungsi untuk menggunakan data dummy jika tidak dapat mengakses data real
+        function useDummyData() {
+            // Data dummy untuk bimbingan
+            const dummyBimbingan = [
+                {NIM: '200101001', Nama: 'Ahmad Sulaiman', Judul: 'Analisis Pengaruh Fintech Terhadap Perbankan Syariah', Pembimbing1: 'Dr. Muhammad Amin, M.E.I.', Pembimbing2: 'Dr. Siti Fatimah, M.Si.', Tanggal: '2023-05-10', Status: 'Selesai'},
+                {NIM: '200101002', Nama: 'Siti Rahayu', Judul: 'Strategi Pemasaran Bank Syariah di Era Digital', Pembimbing1: 'Prof. Dr. Abdul Halim, M.A.', Pembimbing2: 'Dr. Rina Dewi, M.Si.', Tanggal: '2023-06-15', Status: 'Dalam Proses'},
+                {NIM: '200102001', Nama: 'Budi Santoso', Judul: 'Dampak Pandemi terhadap Kinerja Keuangan BMT', Pembimbing1: 'Dr. Ahmad Fauzi, M.E.I.', Pembimbing2: null, Tanggal: '2023-07-20', Status: 'Perlu Revisi'},
+                {NIM: '200103001', Nama: 'Dewi Anggraini', Judul: 'Pengaruh Corporate Governance terhadap Kinerja Bank Syariah', Pembimbing1: 'Dr. Ismail Nawawi, M.Si.', Pembimbing2: 'Dr. Hj. Maya Sari, M.E.I.', Tanggal: '2023-08-05', Status: 'Dalam Proses'}
+            ];
             
-            const ctxStatus = document.getElementById('chart-status').getContext('2d');
-            const chartStatus = new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Lulus Tepat Waktu', 'Sedang proses', 'Terlambat', 'Early Warning'],
-                    datasets: [{
-                        data: [65, 20, 10, 5],
-                        backgroundColor: [
-                            '#3b5998',
-                            '#8b9dc3',
-                            '#ff6384',
-                            '#ffcd56'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Status Mahasiswa Semester Akhir'
-                        }
-                    }
-                }
-            });
-        });
+            bimbinganData = dummyBimbingan;
+            displayBimbinganData(dummyBimbingan);
+            updateBimbinganStats(dummyBimbingan);
+            
+            // Data dummy untuk skripsi
+            const dummySkripsi = [
+                {NIM: '180101001', Nama: 'Rina Amelia', Judul: 'Analisis Kinerja Keuangan Bank Syariah di Indonesia', Prodi: 'Ekonomi Syariah', Tahun: '2022', Pembimbing1: 'Dr. Muhammad Amin, M.E.I.', Pembimbing2: 'Dr. Siti Fatimah, M.Si.', Status: 'Lulus'},
+                {NIM: '180102001', Nama: 'Fajar Nugroho', Judul: 'Strategi Pengembangan Produk Perbankan Syariah', Prodi: 'Perbankan Syariah', Tahun: '2022', Pembimbing1: 'Prof. Dr. Abdul Halim, M.A.', Status: 'Lulus'},
+                {NIM: '190101001', Nama: 'Maya Indah', Judul: 'Dampak Digitalisasi terhadap Literasi Keuangan Syariah', Prodi: 'Ekonomi Syariah', Tahun: '2023', Pembimbing1: 'Dr. Ahmad Fauzi, M.E.I.', Pembimbing2: 'Dr. Rina Dewi, M.Si.', Status: 'Lulus'},
+                {NIM: '190103001', Nama: 'Rizki Pratama', Judul: 'Analisis Kepuasan Nasabah terhadap Layanan Bank Syariah', Prodi: 'Manajemen Bisnis Syariah', Tahun: '2023', Pembimbing1: 'Dr. Ismail Nawawi, M.Si.', Status: 'Dalam Proses'}
+            ];
+            
+            skripsiData = dummySkripsi;
+            displaySkripsiData(dummySkripsi);
+            updateSkripsiStats(dummySkripsi);
+            populateYearFilter(dummySkripsi);
+            
+            // Data dummy untuk early warning
+            const dummyWarning = [
+                {NIM: '160101001', Nama: 'Andi Wijaya', Semester: '14', Prodi: 'Ekonomi Syariah', Judul: 'Analisis Pengaruh Inflasi terhadap Investasi Syariah', Status: 'Perlu Perhatian'},
+                {NIM: '160102001', Nama: 'Dian Pertiwi', Semester: '13', Prodi: 'Perbankan Syariah', Judul: 'Studi Komparasi Kinerja Bank Syariah dan Konvensional', Status: 'Perlu Perhatian'},
+                {NIM: '170103001', Nama: 'Eko Prasetyo', Semester: '11', Prodi: 'Manajemen Bisnis Syariah', Judul: 'Pengaruh Brand Image terhadap Keputusan Menabung di Bank Syariah', Status: 'Perlu Perhatian'}
+            ];
+            
+            warningData = dummyWarning;
+            displayWarningData(dummyWarning);
+            updateWarningStats(dummyWarning);
+        }
     </script>
 </body>
 </html>
