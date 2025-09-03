@@ -255,6 +255,35 @@
             color: var(--primary-color);
         }
         
+        /* Autofill styling */
+        .autofill-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .autofill-option:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .autofill-container {
+            position: relative;
+        }
+        
+        .autofill-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #sidebar {
@@ -742,14 +771,15 @@
                                 </div>
                                 
                                 <form id="uploadSkripsiForm">
-                                    <div class="mb-3">
+                                    <div class="mb-3 autofill-container">
                                         <label for="nimSkripsi" class="form-label">NIM</label>
                                         <input type="text" class="form-control" id="nimSkripsi" required>
+                                        <div class="autofill-suggestions" id="nimSuggestions"></div>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="judulSkripsiFinal" class="form-label">Judul Skripsi Final</label>
-                                        <textarea class="form-control" id="judulSkripsiFinal" rows="2" required readonly></textarea>
+                                        <textarea class="form-control" id="judulSkripsiFinal" rows="2" required></textarea>
                                     </div>
                                     
                                     <div class="row mb-3">
@@ -892,6 +922,22 @@
                         $('#skripsiContent, #statistikContent').hide();
                         $(`a[href="#${target}"]`).click();
                     }, 300);
+                }
+            });
+
+            // Add event listener for NIM input to autofill judul skripsi
+            $('#nimSkripsi').on('input', function() {
+                const nim = $(this).val().trim();
+                if (nim.length > 0) {
+                    // Find the student data by NIM
+                    const studentData = bimbinganData.find(item => item.NIM === nim);
+                    if (studentData && studentData.Judul) {
+                        $('#judulSkripsiFinal').val(studentData.Judul);
+                    } else {
+                        $('#judulSkripsiFinal').val('');
+                    }
+                } else {
+                    $('#judulSkripsiFinal').val('');
                 }
             });
         });
