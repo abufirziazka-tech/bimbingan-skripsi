@@ -283,7 +283,6 @@
     <div id="content">
         <!-- Bimbingan Menu Content -->
         <div id="bimbingan-content" class="menu-content">
-            <!-- Konten bimbingan tetap sama seperti sebelumnya -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Dashboard Bimbingan Skripsi</h2>
                 <div>
@@ -384,8 +383,17 @@
                                                 <textarea class="form-control" id="judul" rows="3" required></textarea>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="dosen" class="form-label">Dosen Pembimbing yang Diminta</label>
-                                                <input type="text" class="form-control" id="dosen">
+                                                <label for="dosen1" class="form-label">Dosen Pembimbing 1</label>
+                                                <input type="text" class="form-control" id="dosen1" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dosen2" class="form-label">Dosen Pembimbing 2 (Opsional)</label>
+                                                <input type="text" class="form-control" id="dosen2">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="proposal-file" class="form-label">File Proposal (PDF/DOC/DOCX)</label>
+                                                <input type="file" class="form-control" id="proposal-file" accept=".pdf,.doc,.docx" required>
+                                                <div class="form-text">Maksimal ukuran file: 5MB</div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Periksa Similarity & Ajukan</button>
                                         </form>
@@ -438,7 +446,8 @@
                                         <th>NIM</th>
                                         <th>Nama</th>
                                         <th>Prodi</th>
-                                        <th>Dosen Pembimbing</th>
+                                        <th>Dosen Pembimbing 1</th>
+                                        <th>Dosen Pembimbing 2</th>
                                         <th>Judul Proposal</th>
                                         <th>Tanggal Pengajuan</th>
                                         <th>Status</th>
@@ -516,12 +525,22 @@
                                             </div>
                                             <div>
                                                 <h5 class="mb-0">Dr. Ahmad Suryadi, M.Si</h5>
-                                                <p class="text-muted mb-0">Dosen Pembimbing</p>
+                                                <p class="text-muted mb-0">Dosen Pembimbing 1</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="bg-success text-white rounded p-3 me-3">
+                                                <i class="fas fa-user fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-0">Dr. Siti Rahayu, M.Si</h5>
+                                                <p class="text-muted mb-0">Dosen Pembimbing 2</p>
                                             </div>
                                         </div>
                                         
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-success text-white rounded p-3 me-3">
+                                            <div class="bg-warning text-white rounded p-3 me-3">
                                                 <i class="fas fa-map-marker-alt fa-2x"></i>
                                             </div>
                                             <div>
@@ -621,7 +640,7 @@
                                                     <tr>
                                                         <td>28 Mei 2023</td>
                                                         <td>Bab 1 Disetujui</td>
-                                                        <td>Dr. Ahmad Suryadi, M.Si</td>
+                                                        <td>Dr. Siti Rahayu, M.Si</td>
                                                         <td><span class="status-badge status-diterima">Disetujui</span></td>
                                                         <td>Bab 1 sudah baik, lanjutkan ke bab 2</td>
                                                     </tr>
@@ -652,11 +671,8 @@
                         </div>
                         
                         <div class="row mt-4">
-                            <div class="col-md-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Daftar Mahasiswa Early Warning</h5>
-                                    </div>
+                            <div class
+
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table id="table-warning" class="table table-striped">
@@ -687,7 +703,6 @@
         
         <!-- Skripsi Menu Content -->
         <div id="skripsi-content" class="menu-content d-none">
-            <!-- Konten skripsi tetap sama seperti sebelumnya -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Database Skripsi</h2>
                 <div>
@@ -875,7 +890,7 @@
                                     <div class="card-body">
                                         <div class="alert alert-info">
                                             <i class="fas fa-info-circle me-2"></i>
-                                            <strong>Perhatian:</strong> Pastikan file yang diupload sudah final and telah mendapat persetujuan dari dosen pembimbing.
+                                            <strong>Perhatian:</strong> Pastikan file yang diupload sudah final dan telah mendapat persetujuan dari dosen pembimbing.
                                         </div>
                                         
                                         <h6>Persyaratan Upload:</h6>
@@ -1084,7 +1099,18 @@
             // Handler untuk form pengajuan proposal
             $('#proposal-form').on('submit', function(e) {
                 e.preventDefault();
-                checkSimilarity();
+                
+                // Ambil file yang diupload
+                var fileInput = document.getElementById('proposal-file');
+                var file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('File proposal harus diupload');
+                    return;
+                }
+                
+                // Cek similarity terlebih dahulu
+                checkSimilarity(file);
             });
             
             // Handler untuk form upload skripsi
@@ -1294,7 +1320,8 @@
                                 <td>${item.nim || ''}</td>
                                 <td>${item.nama || ''}</td>
                                 <td>${item.prodi || ''}</td>
-                                <td>${item.dosen_pembimbing || ''}</td>
+                                <td>${item.dosen_pembimbing1 || ''}</td>
+                                <td>${item.dosen_pembimbing2 || ''}</td>
                                 <td>${item.judul_proposal || ''}</td>
                                 <td>${item.tanggal_pengajuan || ''}</td>
                                 <td><span class="status-badge status-${getStatusClass(item.status || '')}">${item.status || ''}</span></td>
@@ -1439,7 +1466,7 @@
         }
         
         // Fungsi untuk mengecek similarity judul proposal
-        function checkSimilarity() {
+        function checkSimilarity(file) {
             const judul = $('#judul').val().trim();
             
             if (!judul) {
@@ -1479,49 +1506,89 @@
                 
                 $('#similarity-feedback').html(feedback);
                 
-                showLoading(false);
-                
-                // Simpan data pengajuan (dalam implementasi nyata, ini akan mengirim data ke Google Sheets)
-                simpanPengajuanProposal(similarity);
+                // Jika similarity acceptable, upload proposal
+                if (similarity < 50) {
+                    uploadProposal(file, similarity);
+                } else {
+                    showLoading(false);
+                    $('#similarity-feedback').append('<div class="mt-3"><button class="btn btn-warning" id="force-upload">Tetap Upload Proposal</button></div>');
+                    
+                    // Handler untuk force upload
+                    $('#force-upload').on('click', function() {
+                        uploadProposal(file, similarity);
+                    });
+                }
             }, 2000);
         }
         
-        // Fungsi untuk menyimpan pengajuan proposal
-        function simpanPengajuanProposal(similarity) {
-            const data = {
-                nim: $('#nim').val(),
-                nama: $('#nama').val(),
-                prodi: $('#prodi').val(),
-                judul: $('#judul').val(),
-                dosen: $('#dosen').val(),
-                similarity: similarity,
-                tanggal: new Date().toLocaleDateString('id-ID'),
-                status: similarity < 25 ? 'Diterima' : (similarity < 50 ? 'Perlu Revisi' : 'Ditolak')
-            };
+        // Fungsi untuk upload proposal
+        function uploadProposal(file, similarity) {
+            const formData = new FormData();
+            formData.append('action', 'submitProposal');
+            formData.append('nim', $('#nim').val());
+            formData.append('nama', $('#nama').val());
+            formData.append('prodi', $('#prodi').val());
+            formData.append('judul', $('#judul').val());
+            formData.append('dosen1', $('#dosen1').val());
+            formData.append('dosen2', $('#dosen2').val());
+            formData.append('similarity', similarity);
+            formData.append('file', file);
             
-            // Tampilkan status pengajuan terakhir
-            const statusClass = similarity < 25 ? 'diterima' : (similarity < 50 ? 'proses' : 'ditolak');
-            
-            $('#last-submission').html(`
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <strong>Status:</strong>
-                    <span class="status-badge status-${statusClass}">${data.status}</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <strong>Tanggal:</strong>
-                    <span>${data.tanggal}</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <strong>Similarity:</strong>
-                    <span>${similarity}%</span>
-                </div>
-            `);
-            
-            // Reset form
-            $('#proposal-form')[0].reset();
-            
-            // Dalam implementasi nyata, data akan dikirim ke Google Sheets
-            // menggunakan Google Apps Script atau API lain
+            $.ajax({
+                url: WEB_APP_URL,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    const result = JSON.parse(response);
+                    
+                    if (result.success) {
+                        // Tampilkan status pengajuan terakhir
+                        const statusClass = similarity < 25 ? 'diterima' : (similarity < 50 ? 'proses' : 'ditolak');
+                        
+                        $('#last-submission').html(`
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Status:</strong>
+                                <span class="status-badge status-${statusClass}">${similarity < 25 ? 'Diterima' : (similarity < 50 ? 'Perlu Revisi' : 'Ditolak')}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Tanggal:</strong>
+                                <span>${new Date().toLocaleDateString('id-ID')}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>Similarity:</strong>
+                                <span>${similarity}%</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>File:</strong>
+                                <a href="${result.fileUrl}" target="_blank">Lihat Proposal</a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <strong>Dosen Pembimbing 1:</strong>
+                                <span>${$('#dosen1').val()}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>Dosen Pembimbing 2:</strong>
+                                <span>${$('#dosen2').val() || 'Tidak ada'}</span>
+                            </div>
+                        `);
+                        
+                        // Reset form
+                        $('#proposal-form')[0].reset();
+                        
+                        alert('Proposal berhasil diajukan!');
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error uploading proposal: ' + error);
+                },
+                complete: function() {
+                    showLoading(false);
+                }
+            });
         }
         
         // Fungsi untuk upload skripsi final
