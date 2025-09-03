@@ -1,3 +1,8 @@
+# Dashboard Skripsi & Bimbingan dengan Dosen Pembimbing 1 dan 2
+
+Berikut adalah kode lengkap dashboard dengan penambahan field Dosen Pembimbing 2 pada form pengajuan proposal:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -534,7 +539,7 @@
                                                 <i class="fas fa-user fa-2x"></i>
                                             </div>
                                             <div>
-                                                <h5 class="mb-0">Dr. Siti Rahayu, M.Si</h5>
+                                                <h5 class="mb-0">Dr. Fatimah Azzahra, M.Si</h5>
                                                 <p class="text-muted mb-0">Dosen Pembimbing 2</p>
                                             </div>
                                         </div>
@@ -624,7 +629,8 @@
                                                     <tr>
                                                         <th>Tanggal</th>
                                                         <th>Materi</th>
-                                                        <th>Dosen</th>
+                                                        <th>Dosen Pembimbing 1</th>
+                                                        <th>Dosen Pembimbing 2</th>
                                                         <th>Status</th>
                                                         <th>Komentar</th>
                                                     </tr>
@@ -634,13 +640,15 @@
                                                         <td>10 Juni 2023</td>
                                                         <td>Revisi Bab 2</td>
                                                         <td>Dr. Ahmad Suryadi, M.Si</td>
+                                                        <td>Dr. Fatimah Azzahra, M.Si</td>
                                                         <td><span class="status-badge status-proses">Dalam Review</span></td>
                                                         <td>Perbaiki landasan teori halaman 25</td>
                                                     </tr>
                                                     <tr>
                                                         <td>28 Mei 2023</td>
                                                         <td>Bab 1 Disetujui</td>
-                                                        <td>Dr. Siti Rahayu, M.Si</td>
+                                                        <td>Dr. Ahmad Suryadi, M.Si</td>
+                                                        <td>Dr. Fatimah Azzahra, M.Si</td>
                                                         <td><span class="status-badge status-diterima">Disetujui</span></td>
                                                         <td>Bab 1 sudah baik, lanjutkan ke bab 2</td>
                                                     </tr>
@@ -648,6 +656,7 @@
                                                         <td>12 Mei 2023</td>
                                                         <td>Pengajuan Proposal</td>
                                                         <td>Dr. Ahmad Suryadi, M.Si</td>
+                                                        <td>Dr. Fatimah Azzahra, M.Si</td>
                                                         <td><span class="status-badge status-diterima">Diterima</span></td>
                                                         <td>Proposal diterima dengan revisi minor</td>
                                                     </tr>
@@ -671,8 +680,11 @@
                         </div>
                         
                         <div class="row mt-4">
-                            <div class
-
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Daftar Mahasiswa Early Warning</h5>
+                                    </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table id="table-warning" class="table table-striped">
@@ -856,8 +868,12 @@
                                                 <textarea class="form-control" id="upload-judul" rows="2" required></textarea>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="upload-dosen" class="form-label">Dosen Pembimbing</label>
-                                                <input type="text" class="form-control" id="upload-dosen" required>
+                                                <label for="upload-dosen1" class="form-label">Dosen Pembimbing 1</label>
+                                                <input type="text" class="form-control" id="upload-dosen1" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="upload-dosen2" class="form-label">Dosen Pembimbing 2 (Opsional)</label>
+                                                <input type="text" class="form-control" id="upload-dosen2">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="upload-tahun" class="form-label">Tahun Lulus</label>
@@ -1052,6 +1068,7 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    
     <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -1101,8 +1118,8 @@
                 e.preventDefault();
                 
                 // Ambil file yang diupload
-                var fileInput = document.getElementById('proposal-file');
-                var file = fileInput.files[0];
+                const fileInput = document.getElementById('proposal-file');
+                const file = fileInput.files[0];
                 
                 if (!file) {
                     alert('File proposal harus diupload');
@@ -1320,8 +1337,8 @@
                                 <td>${item.nim || ''}</td>
                                 <td>${item.nama || ''}</td>
                                 <td>${item.prodi || ''}</td>
-                                <td>${item.dosen_pembimbing1 || ''}</td>
-                                <td>${item.dosen_pembimbing2 || ''}</td>
+                                <td>${item.dosen_pembimbing_1 || ''}</td>
+                                <td>${item.dosen_pembimbing_2 || ''}</td>
                                 <td>${item.judul_proposal || ''}</td>
                                 <td>${item.tanggal_pengajuan || ''}</td>
                                 <td><span class="status-badge status-${getStatusClass(item.status || '')}">${item.status || ''}</span></td>
@@ -1529,8 +1546,8 @@
             formData.append('nama', $('#nama').val());
             formData.append('prodi', $('#prodi').val());
             formData.append('judul', $('#judul').val());
-            formData.append('dosen1', $('#dosen1').val());
-            formData.append('dosen2', $('#dosen2').val());
+            formData.append('dosen1', $('#dosen1').val());  // Dosen Pembimbing 1
+            formData.append('dosen2', $('#dosen2').val());  // Dosen Pembimbing 2
             formData.append('similarity', similarity);
             formData.append('file', file);
             
@@ -1620,7 +1637,8 @@
                     nama: $('#upload-nama').val(),
                     prodi: $('#upload-prodi').val(),
                     judul: $('#upload-judul').val(),
-                    dosen: $('#upload-dosen').val(),
+                    dosen1: $('#upload-dosen1').val(),
+                    dosen2: $('#upload-dosen2').val(),
                     tahun: $('#upload-tahun').val(),
                     tanggal: new Date().toLocaleDateString('id-ID'),
                     status: 'Menunggu Verifikasi'
@@ -1639,6 +1657,14 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <strong>File:</strong>
                         <span>${file.name}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <strong>Dosen Pembimbing 1:</strong>
+                        <span>${data.dosen1}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Dosen Pembimbing 2:</strong>
+                        <span>${data.dosen2 || 'Tidak ada'}</span>
                     </div>
                 `);
                 
