@@ -157,11 +157,13 @@
             text-align: center;
             padding: 20px;
             transition: all 0.3s;
+            border-radius: 10px;
+            height: 100%;
         }
         
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         
         .stat-card i {
@@ -180,9 +182,47 @@
             margin: 0;
         }
         
-        /* Stats Section */
-        .stats-section {
-            margin-bottom: 30px;
+        /* Stat Cards Colors */
+        .stat-card.skripsi {
+            background: linear-gradient(45deg, #3498db, #2c3e50);
+            color: white;
+        }
+        
+        .stat-card.skripsi i {
+            color: #ffffff;
+        }
+        
+        .stat-card.bimbingan {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        .stat-card.bimbingan i {
+            color: #ffffff;
+        }
+        
+        .stat-card.selesai {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .stat-card.selesai i {
+            color: #ffffff;
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .stat-card.warning i {
+            color: #ffffff;
+        }
+        
+        /* Mini Charts */
+        .mini-chart {
+            height: 60px;
+            margin-top: 15px;
         }
         
         /* Form Styling */
@@ -257,10 +297,6 @@
             
             #content {
                 width: calc(100% - 80px);
-            }
-            
-            .stat-card {
-                margin-bottom: 15px;
             }
         }
     </style>
@@ -346,48 +382,58 @@
         <!-- Page Content -->
         <div id="content">
             <div class="container-fluid">
-                <!-- Stats Section - Added to the default page -->
-                <div class="stats-section">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="stat-card-icon" style="color: #3498db;">
-                                    <i class="fas fa-users"></i>
+                <!-- Statistics Section - Added to the default page -->
+                <div class="row mb-4" id="statisticsSection">
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card skripsi">
+                            <div class="card-body">
+                                <i class="fas fa-book"></i>
+                                <h2 id="totalSkripsi">0</h2>
+                                <p>Total Skripsi</p>
+                                <div class="mini-chart">
+                                    <canvas id="skripsiChart"></canvas>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card bimbingan">
+                            <div class="card-body">
+                                <i class="fas fa-graduation-cap"></i>
                                 <h2 id="totalBimbinganStat">0</h2>
                                 <p>Total Bimbingan</p>
+                                <div class="mini-chart">
+                                    <canvas id="bimbinganChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="stat-card-icon" style="color: #27ae60;">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <h2 id="selesaiBimbinganStat">0</h2>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card selesai">
+                            <div class="card-body">
+                                <i class="fas fa-check-circle"></i>
+                                <h2 id="selesaiStat">0</h2>
                                 <p>Selesai</p>
+                                <div class="mini-chart">
+                                    <canvas id="selesaiChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="stat-card-icon" style="color: #f39c12;">
-                                    <i class="fas fa-spinner"></i>
-                                </div>
-                                <h2 id="prosesBimbinganStat">0</h2>
-                                <p>Dalam Proses</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card stat-card">
-                                <div class="stat-card-icon" style="color: #e74c3c;">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card warning">
+                            <div class="card-body">
+                                <i class="fas fa-exclamation-triangle"></i>
                                 <h2 id="earlyWarningStat">0</h2>
                                 <p>Early Warning</p>
+                                <div class="mini-chart">
+                                    <canvas id="warningChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- Bimbingan Section -->
                 <div id="bimbinganContent">
                     <!-- Pengajuan Proposal -->
@@ -963,7 +1009,7 @@
                 success: function(response) {
                     bimbinganData = response;
                     loadBimbinganData();
-                    updateStatsCards();
+                    updateStatistics(); // Update statistics after loading data
                 },
                 error: function(error) {
                     console.error('Error loading bimbingan data:', error);
@@ -981,6 +1027,7 @@
                 },
                 success: function(response) {
                     skripsiData = response;
+                    updateStatistics(); // Update statistics after loading data
                 },
                 error: function(error) {
                     console.error('Error loading skripsi data:', error);
@@ -997,7 +1044,7 @@
                 },
                 success: function(response) {
                     earlyWarningData = response;
-                    updateStatsCards();
+                    updateStatistics(); // Update statistics after loading data
                 },
                 error: function(error) {
                     console.error('Error loading early warning data:', error);
@@ -1005,13 +1052,145 @@
             });
         }
         
-        // Update stats cards on the default page
-        function updateStatsCards() {
-            // Update stat cards with actual data
+        // Update statistics cards
+        function updateStatistics() {
+            // Update the statistics cards with actual data
+            $('#totalSkripsi').text(skripsiData.length);
             $('#totalBimbinganStat').text(bimbinganData.length);
-            $('#selesaiBimbinganStat').text(bimbinganData.filter(item => item.Status === 'Selesai').length);
-            $('#prosesBimbinganStat').text(bimbinganData.filter(item => item.Status === 'Dalam Proses').length);
+            
+            // Calculate completed bimbingan
+            const completedBimbingan = bimbinganData.filter(item => item.Status === 'Selesai').length;
+            $('#selesaiStat').text(completedBimbingan);
+            
             $('#earlyWarningStat').text(earlyWarningData.length);
+            
+            // Update mini charts
+            updateMiniCharts();
+        }
+        
+        // Update mini charts in statistics cards
+        function updateMiniCharts() {
+            // Skripsi trend chart
+            const skripsiCtx = document.getElementById('skripsiChart').getContext('2d');
+            new Chart(skripsiCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                    datasets: [{
+                        data: [5, 8, 12, 6, 14, 10],
+                        borderColor: 'rgba(255, 255, 255, 0.7)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Bimbingan chart
+            const bimbinganCtx = document.getElementById('bimbinganChart').getContext('2d');
+            new Chart(bimbinganCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['ES', 'PS', 'MBS'],
+                    datasets: [{
+                        data: [12, 18, 8],
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Selesai chart
+            const selesaiCtx = document.getElementById('selesaiChart').getContext('2d');
+            new Chart(selesaiCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai', 'Proses'],
+                    datasets: [{
+                        data: [65, 35],
+                        backgroundColor: [
+                            'rgba(255, 255, 255, 0.7)',
+                            'rgba(255, 255, 255, 0.2)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Warning chart
+            const warningCtx = document.getElementById('warningChart').getContext('2d');
+            new Chart(warningCtx, {
+                type: 'line',
+                data: {
+                    labels: ['S11', 'S12', 'S13', 'S14'],
+                    datasets: [{
+                        data: [3, 7, 12, 8],
+                        borderColor: 'rgba(255, 255, 255, 0.7)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            display: false
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    maintainAspectRatio: false
+                }
+            });
         }
         
         // Initialize tahun akademik options
@@ -1459,7 +1638,7 @@
                 
                 $('#similarityResult').html(message);
             }, 1500);
-        });
+        }
         
         // Handle proposal form submission
         $('#proposalForm').submit(function(e) {
