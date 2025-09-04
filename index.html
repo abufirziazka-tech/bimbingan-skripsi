@@ -323,6 +323,30 @@
             .main-stat-card {
                 margin-bottom: 15px;
             }
+            
+            /* Responsive iframe */
+            .google-form-container iframe {
+                height: 1200px !important;
+            }
+        }
+        
+        /* Google Form Container */
+        .google-form-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        
+        .google-form-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -456,7 +480,10 @@
                                     <i class="fas fa-info-circle"></i> Pastikan proposal telah melalui konsultasi dengan calon pembimbing sebelum diajukan.
                                 </div>
                                 
-                                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdJNLwEG7Mjry5CQAt1KuNz-BHyQJpiVdR1jqZeJJ6zzbl7Rg/viewform?usp=sharing&ouid=106973521943056472140" width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>
+                                <div class="google-form-container">
+                                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScEXAMPLEVIEWFORM" 
+                                            frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -821,7 +848,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyG6bsIY2HW7_sHq0QgtU5haitaIDpz9DVRrDsxvuRV3rtg2rxvGw1dUOY62oOvpq_w/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -829,7 +856,6 @@
         let bimbinganData = [];
         let skripsiData = [];
         let earlyWarningData = [];
-        let dosenData = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -841,6 +867,9 @@
             
             // Initialize tahun akademik options
             initTahunAkademik();
+            
+            // Initialize dosen options
+            initDosenOptions();
             
             // Initialize charts
             initCharts();
@@ -1051,23 +1080,6 @@
                 }
             });
             
-            // Load dosen data
-            $.ajax({
-                url: scriptUrl,
-                method: 'GET',
-                dataType: 'json',
-                data: {
-                    action: 'getDosen'
-                },
-                success: function(response) {
-                    dosenData = response;
-                    initDosenOptions(); // Initialize dosen options
-                },
-                error: function(error) {
-                    console.error('Error loading dosen data:', error);
-                }
-            });
-            
             // Load skripsi final data
             $.ajax({
                 url: scriptUrl,
@@ -1133,6 +1145,15 @@
         
         // Initialize dosen options
         function initDosenOptions() {
+            // In a real application, this would come from a database
+            const dosenList = [
+                {id: 1, nama: "Dr. Ahmad Susanto, M.Si"},
+                {id: 2, nama: "Prof. Dr. Siti Aminah, M.Ag"},
+                {id: 3, nama: "Dr. Muhammad Rizal, S.E., M.Si"},
+                {id: 4, nama: "Dr. Fatimah Zahra, M.E.I"},
+                {id: 5, nama: "Dr. Abdul Rahman, S.E.I., M.Si"}
+            ];
+            
             const selectPembimbing1 = $('#dosenPembimbing1');
             const selectPembimbing2 = $('#dosenPembimbing2');
             
@@ -1145,9 +1166,9 @@
             selectPembimbing2.append('<option value="">Pilih Dosen Pembimbing 2 (jika diperlukan)</option>');
             
             // Add dosen options
-            dosenData.forEach(dosen => {
-                selectPembimbing1.append(`<option value="${dosen.ID}">${dosen.Nama}</option>`);
-                selectPembimbing2.append(`<option value="${dosen.ID}">${dosen.Nama}</option>`);
+            dosenList.forEach(dosen => {
+                selectPembimbing1.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
+                selectPembimbing2.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
             });
         }
         
@@ -1522,13 +1543,15 @@
             const judul = $('#judulSkripsiFinal').val();
             const tahunLulus = $('#tahunLulus').val();
             const tanggalSidang = $('#tanggalSidang').val();
-            const file = $('#fileSkripsi')[0].files[0];
+            const fileInput = $('#fileSkripsi')[0];
             const approval = $('#approvalCheck').is(':checked');
             
-            if (!nim || !nama || !prodi || !judul || !tahunLulus || !tanggalSidang || !file || !approval) {
+            if (!nim || !nama || !prodi || !judul || !tahunLulus || !tanggalSidang || !fileInput.files[0] || !approval) {
                 alert('Harap lengkapi semua field dan centang persetujuan');
                 return;
             }
+            
+            const file = fileInput.files[0];
             
             // Show loading
             const submitBtn = $(this).find('button[type="submit"]');
@@ -1536,43 +1559,59 @@
             submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengupload...');
             submitBtn.prop('disabled', true);
             
-            // Create FormData object
-            const formData = new FormData();
-            formData.append('action', 'uploadSkripsiFinal');
-            formData.append('nim', nim);
-            formData.append('nama', nama);
-            formData.append('prodi', prodi);
-            formData.append('judul', judul);
-            formData.append('tahunLulus', tahunLulus);
-            formData.append('tanggalSidang', tanggalSidang);
-            formData.append('file', file);
+            // Convert file to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function() {
+                const base64 = reader.result.split(',')[1];
+                
+                // Prepare data for submission
+                const formData = new FormData();
+                formData.append('action', 'uploadSkripsiFinal');
+                formData.append('nim', nim);
+                formData.append('nama', nama);
+                formData.append('prodi', prodi);
+                formData.append('judul', judul);
+                formData.append('tahunLulus', tahunLulus);
+                formData.append('tanggalSidang', tanggalSidang);
+                formData.append('filename', file.name);
+                formData.append('mimeType', file.type);
+                formData.append('file', base64);
+                
+                // Send data to Google Apps Script
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        alert('Skripsi final berhasil diupload!');
+                        $('#uploadSkripsiForm')[0].reset();
+                        
+                        // Reload data to reflect changes
+                        loadInitialData();
+                    } else {
+                        alert('Terjadi kesalahan: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat mengupload skripsi final.');
+                })
+                .finally(() => {
+                    // Restore button
+                    submitBtn.html(originalText);
+                    submitBtn.prop('disabled', false);
+                });
+            };
             
-            // Send data to Google Apps Script
-            fetch(scriptUrl, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'success') {
-                    alert('Skripsi final berhasil diupload!');
-                    $('#uploadSkripsiForm')[0].reset();
-                    
-                    // Reload data to reflect changes
-                    loadInitialData();
-                } else {
-                    alert('Terjadi kesalahan: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengupload skripsi final.');
-            })
-            .finally(() => {
-                // Restore button
+            reader.onerror = function(error) {
+                console.error('Error reading file:', error);
+                alert('Terjadi kesalahan saat membaca file.');
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
-            });
+            };
         });
         
         // Filter skripsi table
@@ -1648,7 +1687,3 @@
     </script>
 </body>
 </html>
-
-
-
-
