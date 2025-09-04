@@ -469,7 +469,7 @@
                 
                 <!-- Bimbingan Section -->
                 <div id="bimbinganContent">
-                    <!-- Pengajuan Proposal -->
+                    <!-- Pengajuan Proposal - Diubah dari iframe ke form HTML -->
                     <div class="content-section" id="pengajuan">
                         <div class="card">
                             <div class="card-header">
@@ -480,10 +480,66 @@
                                     <i class="fas fa-info-circle"></i> Pastikan proposal telah melalui konsultasi dengan calon pembimbing sebelum diajukan.
                                 </div>
                                 
-                                <div class="google-form-container">
-                                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScEXAMPLEVIEWFORM" 
-                                            frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>
-                                </div>
+                                <form id="pengajuanProposalForm">
+                                    <div class="mb-3">
+                                        <label for="nimProposal" class="form-label">NIM</label>
+                                        <input type="text" class="form-control" id="nimProposal" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="namaProposal" class="form-label">Nama Lengkap</label>
+                                        <input type="text" class="form-control" id="namaProposal" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="prodiProposal" class="form-label">Program Studi</label>
+                                        <select class="form-select" id="prodiProposal" required>
+                                            <option value="">Pilih Program Studi</option>
+                                            <option value="ES">Ekonomi Syariah</option>
+                                            <option value="PS">Perbankan Syariah</option>
+                                            <option value="MBS">Manajemen Bisnis Syariah</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="tahunAkademik" class="form-label">Tahun Akademik</label>
+                                        <select class="form-select" id="tahunAkademik" required>
+                                            <option value="">Pilih Tahun Akademik</option>
+                                            <!-- Options akan diisi oleh JavaScript -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="judulProposal" class="form-label">Judul Proposal</label>
+                                        <textarea class="form-control" id="judulProposal" rows="3" required></textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dosenPembimbing1" class="form-label">Dosen Pembimbing 1</label>
+                                        <select class="form-select" id="dosenPembimbing1" required>
+                                            <option value="">Pilih Dosen Pembimbing 1</option>
+                                            <!-- Options akan diisi oleh JavaScript -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dosenPembimbing2" class="form-label">Dosen Pembimbing 2 (opsional)</label>
+                                        <select class="form-select" id="dosenPembimbing2">
+                                            <option value="">Pilih Dosen Pembimbing 2 (jika diperlukan)</option>
+                                            <!-- Options akan diisi oleh JavaScript -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="fileProposal" class="form-label">Upload Proposal</label>
+                                        <input type="file" class="form-control" id="fileProposal" accept=".pdf,.doc,.docx" required>
+                                        <div class="form-text">Format file: PDF atau DOC/DOCX (maks. 10MB)</div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Ajukan Proposal
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -919,6 +975,89 @@
                     $('#prodiSkripsi').val('').prop('disabled', false);
                     $('#judulSkripsiFinal').val('');
                 }
+            });
+
+            // Event handler untuk form pengajuan proposal
+            $('#pengajuanProposalForm').submit(function(e) {
+                e.preventDefault();
+                
+                // Basic validation
+                const nim = $('#nimProposal').val();
+                const nama = $('#namaProposal').val();
+                const prodi = $('#prodiProposal').val();
+                const tahunAkademik = $('#tahunAkademik').val();
+                const judul = $('#judulProposal').val();
+                const dosenPembimbing1 = $('#dosenPembimbing1').val();
+                const dosenPembimbing2 = $('#dosenPembimbing2').val();
+                const fileInput = $('#fileProposal')[0];
+                
+                if (!nim || !nama || !prodi || !tahunAkademik || !judul || !dosenPembimbing1 || !fileInput.files[0]) {
+                    alert('Harap lengkapi semua field yang wajib diisi');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                
+                // Show loading
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengajukan...');
+                submitBtn.prop('disabled', true);
+                
+                // Convert file to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function() {
+                    const base64 = reader.result.split(',')[1];
+                    
+                    // Prepare data for submission
+                    const formData = new FormData();
+                    formData.append('action', 'uploadProposal');
+                    formData.append('nim', nim);
+                    formData.append('nama', nama);
+                    formData.append('prodi', prodi);
+                    formData.append('tahunAkademik', tahunAkademik);
+                    formData.append('judul', judul);
+                    formData.append('dosenPembimbing1', dosenPembimbing1);
+                    formData.append('dosenPembimbing2', dosenPembimbing2 || '');
+                    formData.append('filename', file.name);
+                    formData.append('mimeType', file.type);
+                    formData.append('file', base64);
+                    
+                    // Send data to Google Apps Script
+                    fetch(scriptUrl, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result === 'success') {
+                            alert('Proposal berhasil diajukan!');
+                            $('#pengajuanProposalForm')[0].reset();
+                            
+                            // Reload data to reflect changes
+                            loadInitialData();
+                        } else {
+                            alert('Terjadi kesalahan: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat mengajukan proposal.');
+                    })
+                    .finally(() => {
+                        // Restore button
+                        submitBtn.html(originalText);
+                        submitBtn.prop('disabled', false);
+                    });
+                };
+                
+                reader.onerror = function(error) {
+                    console.error('Error reading file:', error);
+                    alert('Terjadi kesalahan saat membaca file.');
+                    submitBtn.html(originalText);
+                    submitBtn.prop('disabled', false);
+                };
             });
         });
         
@@ -1687,4 +1826,3 @@
     </script>
 </body>
 </html>
-
