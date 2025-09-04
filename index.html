@@ -778,6 +778,21 @@
                                     </div>
                                     
                                     <div class="mb-3">
+                                        <label for="namaSkripsi" class="form-label">Nama Lengkap</label>
+                                        <input type="text" class="form-control" id="namaSkripsi" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="prodiSkripsi" class="form-label">Program Studi</label>
+                                        <select class="form-select" id="prodiSkripsi" required>
+                                            <option value="">Pilih Program Studi</option>
+                                            <option value="ES">Ekonomi Syariah</option>
+                                            <option value="PS">Perbankan Syariah</option>
+                                            <option value="MBS">Manajemen Bisnis Syariah</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
                                         <label for="judulSkripsiFinal" class="form-label">Judul Skripsi Final</label>
                                         <textarea class="form-control" id="judulSkripsiFinal" rows="2" required></textarea>
                                     </div>
@@ -925,18 +940,26 @@
                 }
             });
 
-            // Add event listener for NIM input to autofill judul skripsi
+            // Add event listener for NIM input to autofill data
             $('#nimSkripsi').on('input', function() {
                 const nim = $(this).val().trim();
                 if (nim.length > 0) {
-                    // Find the student data by NIM
+                    // Find the student data by NIM in bimbinganData
                     const studentData = bimbinganData.find(item => item.NIM === nim);
-                    if (studentData && studentData.Judul) {
+                    if (studentData) {
+                        // If found, autofill and disable fields
+                        $('#namaSkripsi').val(studentData.Nama).prop('readonly', true);
+                        $('#prodiSkripsi').val(studentData.Prodi).prop('disabled', true);
                         $('#judulSkripsiFinal').val(studentData.Judul);
                     } else {
+                        // If not found, enable fields and clear
+                        $('#namaSkripsi').val('').prop('readonly', false);
+                        $('#prodiSkripsi').val('').prop('disabled', false);
                         $('#judulSkripsiFinal').val('');
                     }
                 } else {
+                    $('#namaSkripsi').val('').prop('readonly', false);
+                    $('#prodiSkripsi').val('').prop('disabled', false);
                     $('#judulSkripsiFinal').val('');
                 }
             });
@@ -1623,13 +1646,15 @@
             
             // Basic validation
             const nim = $('#nimSkripsi').val();
+            const nama = $('#namaSkripsi').val();
+            const prodi = $('#prodiSkripsi').val();
             const judul = $('#judulSkripsiFinal').val();
             const tahunLulus = $('#tahunLulus').val();
             const tanggalSidang = $('#tanggalSidang').val();
             const file = $('#fileSkripsi')[0].files[0];
             const approval = $('#approvalCheck').is(':checked');
             
-            if (!nim || !judul || !tahunLulus || !tanggalSidang || !file || !approval) {
+            if (!nim || !nama || !prodi || !judul || !tahunLulus || !tanggalSidang || !file || !approval) {
                 alert('Harap lengkapi semua field dan centang persetujuan');
                 return;
             }
@@ -1640,15 +1665,43 @@
             submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengupload...');
             submitBtn.prop('disabled', true);
             
-            // In a real application, this would send data to the server
-            setTimeout(() => {
-                alert('Skripsi final berhasil diupload!');
-                $('#uploadSkripsiForm')[0].reset();
-                
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('action', 'uploadSkripsiFinal');
+            formData.append('nim', nim);
+            formData.append('nama', nama);
+            formData.append('prodi', prodi);
+            formData.append('judul', judul);
+            formData.append('tahunLulus', tahunLulus);
+            formData.append('tanggalSidang', tanggalSidang);
+            formData.append('file', file);
+            
+            // Send data to Google Apps Script
+            fetch(scriptUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('Skripsi final berhasil diupload!');
+                    $('#uploadSkripsiForm')[0].reset();
+                    
+                    // Reload data to reflect changes
+                    loadInitialData();
+                } else {
+                    alert('Terjadi kesalahan: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengupload skripsi final.');
+            })
+            .finally(() => {
                 // Restore button
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
-            }, 2000);
+            });
         });
         
         // Filter skripsi table
