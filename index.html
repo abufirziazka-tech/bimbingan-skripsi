@@ -456,77 +456,7 @@
                                     <i class="fas fa-info-circle"></i> Pastikan proposal telah melalui konsultasi dengan calon pembimbing sebelum diajukan.
                                 </div>
                                 
-                                <form id="proposalForm">
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="nim" class="form-label">NIM</label>
-                                            <input type="text" class="form-control" id="nim" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="nama" class="form-label">Nama Lengkap</label>
-                                            <input type="text" class="form-control" id="nama" required>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="prodi" class="form-label">Program Studi</label>
-                                            <select class="form-select" id="prodi" required>
-                                                <option value="">Pilih Program Studi</option>
-                                                <option value="ES">Ekonomi Syariah</option>
-                                                <option value="PS">Perbankan Syariah</option>
-                                                <option value="MBS">Manajemen Bisnis Syariah</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="tahunAkademik" class="form-label">Tahun Akademik</label>
-                                            <select class="form-select" id="tahunAkademik" required>
-                                                <option value="">Pilih Tahun Akademik</option>
-                                                <!-- Options will be populated by JavaScript -->
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="judulProposal" class="form-label">Judul Proposal</label>
-                                        <textarea class="form-control" id="judulProposal" rows="2" required></textarea>
-                                        <div class="form-text">Masukkan judul proposal dengan jelas dan lengkap</div>
-                                    </div>
-                                    
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="dosenPembimbing1" class="form-label">Dosen Pembimbing 1</label>
-                                            <select class="form-select" id="dosenPembimbing1" required>
-                                                <option value="">Pilih Dosen Pembimbing 1</option>
-                                                <!-- Options will be populated by JavaScript -->
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="dosenPembimbing2" class="form-label">Dosen Pembimbing 2</label>
-                                            <select class="form-select" id="dosenPembimbing2">
-                                                <option value="">Pilih Dosen Pembimbing 2 (jika diperlukan)</option>
-                                                <!-- Options will be populated by JavaScript -->
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="fileProposal" class="form-label">Upload Proposal</label>
-                                        <input type="file" class="form-control" id="fileProposal" accept=".doc,.docx,.pdf" required>
-                                        <div class="form-text">Format file: DOC, DOCX, atau PDF (maks. 5MB)</div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <button type="button" class="btn btn-primary" id="checkSimilarity">
-                                            <i class="fas fa-search"></i> Cek Similaritas Judul
-                                        </button>
-                                        <div id="similarityResult" class="mt-2"></div>
-                                    </div>
-                                    
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-paper-plane"></i> Ajukan Proposal
-                                    </button>
-                                </form>
+                                <iframe src="YOUR_GOOGLE_FORM_URL" width="100%" height="1500" frameborder="0" marginheight="0" marginwidth="0">Memuat…</iframe>
                             </div>
                         </div>
                     </div>
@@ -891,7 +821,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/1DkWgjb6jVQ96cSd6oP9k00vo9NYiWwGt7ZI8CGcMm0/exec';
+        const scriptUrl = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -899,6 +829,7 @@
         let bimbinganData = [];
         let skripsiData = [];
         let earlyWarningData = [];
+        let dosenData = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -910,9 +841,6 @@
             
             // Initialize tahun akademik options
             initTahunAkademik();
-            
-            // Initialize dosen options
-            initDosenOptions();
             
             // Initialize charts
             initCharts();
@@ -1123,6 +1051,23 @@
                 }
             });
             
+            // Load dosen data
+            $.ajax({
+                url: scriptUrl,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    action: 'getDosen'
+                },
+                success: function(response) {
+                    dosenData = response;
+                    initDosenOptions(); // Initialize dosen options
+                },
+                error: function(error) {
+                    console.error('Error loading dosen data:', error);
+                }
+            });
+            
             // Load skripsi final data
             $.ajax({
                 url: scriptUrl,
@@ -1188,15 +1133,6 @@
         
         // Initialize dosen options
         function initDosenOptions() {
-            // In a real application, this would come from a database
-            const dosenList = [
-                {id: 1, nama: "Dr. Ahmad Susanto, M.Si"},
-                {id: 2, nama: "Prof. Dr. Siti Aminah, M.Ag"},
-                {id: 3, nama: "Dr. Muhammad Rizal, S.E., M.Si"},
-                {id: 4, nama: "Dr. Fatimah Zahra, M.E.I"},
-                {id: 5, nama: "Dr. Abdul Rahman, S.E.I., M.Si"}
-            ];
-            
             const selectPembimbing1 = $('#dosenPembimbing1');
             const selectPembimbing2 = $('#dosenPembimbing2');
             
@@ -1209,9 +1145,9 @@
             selectPembimbing2.append('<option value="">Pilih Dosen Pembimbing 2 (jika diperlukan)</option>');
             
             // Add dosen options
-            dosenList.forEach(dosen => {
-                selectPembimbing1.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
-                selectPembimbing2.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
+            dosenData.forEach(dosen => {
+                selectPembimbing1.append(`<option value="${dosen.ID}">${dosen.Nama}</option>`);
+                selectPembimbing2.append(`<option value="${dosen.ID}">${dosen.Nama}</option>`);
             });
         }
         
@@ -1376,7 +1312,7 @@
                 const row = `
                     <tr>
                         <td>${item.Judul || ''}</td>
-                        <td>${item.Nama || ''}</td>
+                        <td>${item.Penulis || ''}</td>
                         <td>${item.Tahun || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
                         <td>${item.Pembimbing1 || ''}${item.Pembimbing2 ? ', ' + item.Pembimbing2 : ''}</td>
@@ -1574,71 +1510,6 @@
             
             new Chart(ctx, config);
         }
-        
-        // Check similarity of proposal title
-        $('#checkSimilarity').click(function() {
-            const judul = $('#judulProposal').val().trim();
-            
-            if (!judul) {
-                $('#similarityResult').html('<div class="alert alert-warning">Masukkan judul proposal terlebih dahulu</div>');
-                return;
-            }
-            
-            // Show loading
-            $('#similarityResult').html('<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div> Memeriksa similaritas...</div>');
-            
-            // Simulate API call to check similarity
-            setTimeout(() => {
-                const similarity = Math.floor(Math.random() * 100);
-                
-                let message = '';
-                if (similarity > 70) {
-                    message = `<div class="alert alert-danger similarity-high">Tingkat similaritas tinggi: ${similarity}%. Judul mungkin terlalu mirip dengan yang sudah ada.</div>`;
-                } else if (similarity > 40) {
-                    message = `<div class="alert alert-warning similarity-medium">Tingkat similaritas sedang: ${similarity}%. Pertimbangkan untuk memodifikasi judul.</div>`;
-                } else {
-                    message = `<div class="alert alert-success similarity-low">Tingkat similaritas rendah: ${similarity}%. Judul dapat diajukan.</div>`;
-                }
-                
-                $('#similarityResult').html(message);
-            }, 1500);
-        });
-        
-        // Handle proposal form submission
-        $('#proposalForm').submit(function(e) {
-            e.preventDefault();
-            
-            // Basic validation
-            const nim = $('#nim').val();
-            const nama = $('#nama').val();
-            const prodi = $('#prodi').val();
-            const tahunAkademik = $('#tahunAkademik').val();
-            const judul = $('#judulProposal').val();
-            const dosen1 = $('#dosenPembimbing1').val();
-            const file = $('#fileProposal')[0].files[0];
-            
-            if (!nim || !nama || !prodi || !tahunAkademik || !judul || !dosen1 || !file) {
-                alert('Harap lengkapi semua field yang wajib diisi');
-                return;
-            }
-            
-            // Show loading
-            const submitBtn = $(this).find('button[type="submit"]');
-            const originalText = submitBtn.html();
-            submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengajukan...');
-            submitBtn.prop('disabled', true);
-            
-            // In a real application, this would send data to the server
-            setTimeout(() => {
-                alert('Proposal berhasil diajukan!');
-                $('#proposalForm')[0].reset();
-                $('#similarityResult').empty();
-                
-                // Restore button
-                submitBtn.html(originalText);
-                submitBtn.prop('disabled', false);
-            }, 2000);
-        });
         
         // Handle skripsi upload form submission
         $('#uploadSkripsiForm').submit(function(e) {
