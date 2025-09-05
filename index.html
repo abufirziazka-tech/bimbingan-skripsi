@@ -904,7 +904,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwY2ob-CnJY0TAAlWQ3Q7ZYX-0Kuw6PjPSfg4jf2vksHc4XlKZgdoKPgH8ajGC4N7yyZQ/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyLBELBVLJHWdCM7NKaYZCXCYdGzMDhOjvBNrVoDbYlxznYJGG0Fq6WHoRmnWw1HHgsg/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -1505,24 +1505,21 @@
             }
             
             earlyWarningData.forEach(item => {
-                const semester = calculateSemester(item.NIM);
                 const statusClass = getStatusClass(item.Status);
-                const warningLevel = getWarningLevel(semester);
                 
                 const row = `
                     <tr>
                         <td>${item.NIM || ''}</td>
                         <td>${item.Nama || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
-                        <td>${semester}</td>
+                        <td>${item.Semester || ''}</td>
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
-                        <td><span class="badge bg-danger">${warningLevel}</span></td>
+                        <td><span class="badge bg-danger">${item.Peringatan || ''}</span></td>
                         <td>
                             <button class="btn btn-sm btn-warning"><i class="fas fa-bell"></i> Notifikasi</button>
                         </td>
                     </tr>
                 `;
-                
                 tableBody.append(row);
             });
         }
@@ -1864,14 +1861,16 @@
             
             // Extract year from NIM (assuming first two digits represent admission year)
             const admissionYear = parseInt('20' + nim.substring(0, 2));
-            const currentYear = new Date().getFullYear();
-            const currentMonth = new Date().getMonth();
+            const currentYear = 2025; // Tahun berjalan (2025)
+            const currentMonth = new Date().getMonth() + 1; // Bulan berjalan (1-12)
             
             // Calculate approximate semester (2 semesters per year)
             let semester = (currentYear - admissionYear) * 2;
             
-            // Adjust for current month (if after June, add one semester)
-            if (currentMonth >= 6) semester += 1;
+            // Adjust for current month
+            // Semester ganjil: Juli-Desember (bulan 7-12)
+            // Semester genap: Januari-Juni (bulan 1-6)
+            if (currentMonth >= 7) semester += 1;
             
             return semester;
         }
@@ -1934,8 +1933,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
