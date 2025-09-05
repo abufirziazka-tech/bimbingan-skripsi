@@ -1727,7 +1727,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.result === 'success') {
-                        alert('Skripsi final berhasil diupload!');
+                        alert('Skripsi final berhasil diupload dan data telah disinkronisasi!');
                         $('#uploadSkripsiForm')[0].reset();
                         
                         // Reload data to reflect changes
@@ -1828,4 +1828,3 @@
     </script>
 </body>
 </html>
-
