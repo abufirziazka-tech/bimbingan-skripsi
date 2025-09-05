@@ -903,8 +903,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Google Apps Script Web App URL - GANTI DENGAN URL ANDA
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbz7nwT-zzZo4rc3Iwi5BIciancwF9bkb7xL-aeKlmEP0uf2-e_TPBz3WtRxj_Hw6RMhoQ/exec';
+        // Google Apps Script Web App URL
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwEtJlz4whAIRpzCicLMR1EJmweNwwVN5MDTQIA_-w_9WMSMmYWIPXeUYfVCdIdKAnWhw/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -912,6 +912,7 @@
         let bimbinganData = [];
         let skripsiData = [];
         let earlyWarningData = [];
+        let dosenList = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -991,7 +992,9 @@
                 const tahunAkademik = $('#tahunAkademik').val();
                 const judul = $('#judulProposal').val();
                 const dosenPembimbing1 = $('#dosenPembimbing1').val();
+                const dosenPembimbing1Nama = $('#dosenPembimbing1 option:selected').text();
                 const dosenPembimbing2 = $('#dosenPembimbing2').val();
+                const dosenPembimbing2Nama = $('#dosenPembimbing2 option:selected').text();
                 const fileInput = $('#fileProposal')[0];
                 
                 if (!nim || !nama || !prodi || !tahunAkademik || !judul || !dosenPembimbing1 || !fileInput.files[0]) {
@@ -1028,7 +1031,9 @@
                     formData.append('tahunAkademik', tahunAkademik);
                     formData.append('judul', judul);
                     formData.append('dosenPembimbing1', dosenPembimbing1);
+                    formData.append('dosenPembimbing1Nama', dosenPembimbing1Nama);
                     formData.append('dosenPembimbing2', dosenPembimbing2 || '');
+                    formData.append('dosenPembimbing2Nama', dosenPembimbing2Nama || '');
                     formData.append('filename', file.name);
                     formData.append('mimeType', file.type);
                     formData.append('file', base64);
@@ -1175,7 +1180,47 @@
             // Show loading state
             showLoading();
             
-            // Load bimbingan data
+            // Load dosen data first
+            $.ajax({
+                url: scriptUrl,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    action: 'getDosen'
+                },
+                success: function(response) {
+                    dosenList = response;
+                    initDosenOptions();
+                    
+                    // Then load other data
+                    loadBimbinganDataFromServer();
+                    loadSkripsiDataFromServer();
+                    loadEarlyWarningDataFromServer();
+                    loadSkripsiFinalDataFromServer();
+                },
+                error: function(error) {
+                    console.error('Error loading dosen data:', error);
+                    // If failed to load dosen data, use default list
+                    dosenList = [
+                        {id: 1, nama: "Prof. Dr. Hj. Darmawati, M. Hum"},
+                        {id: 2, nama: "Dr. H. Moh. Mahrus, M. HI"},
+                        {id: 3, nama: "Dr. Iskandar, M. Ag."},
+                        {id: 4, nama: "Dr. Hj. Wahdatunnisa, M.A."},
+                        {id: 5, nama: "Dr. Tikawati, M. SI."}
+                    ];
+                    initDosenOptions();
+                    
+                    // Load other data
+                    loadBimbinganDataFromServer();
+                    loadSkripsiDataFromServer();
+                    loadEarlyWarningDataFromServer();
+                    loadSkripsiFinalDataFromServer();
+                }
+            });
+        }
+        
+        // Load bimbingan data from server
+        function loadBimbinganDataFromServer() {
             $.ajax({
                 url: scriptUrl,
                 method: 'GET',
@@ -1186,15 +1231,17 @@
                 success: function(response) {
                     bimbinganData = response;
                     loadBimbinganData();
-                    updateMainStats(); // Update main dashboard stats
+                    updateMainStats();
                 },
                 error: function(error) {
                     console.error('Error loading bimbingan data:', error);
                     hideLoading();
                 }
             });
-            
-            // Load skripsi data
+        }
+        
+        // Load skripsi data from server
+        function loadSkripsiDataFromServer() {
             $.ajax({
                 url: scriptUrl,
                 method: 'GET',
@@ -1204,14 +1251,16 @@
                 },
                 success: function(response) {
                     skripsiData = response;
-                    updateMainStats(); // Update main dashboard stats
+                    updateMainStats();
                 },
                 error: function(error) {
                     console.error('Error loading skripsi data:', error);
                 }
             });
-            
-            // Load early warning data
+        }
+        
+        // Load early warning data from server
+        function loadEarlyWarningDataFromServer() {
             $.ajax({
                 url: scriptUrl,
                 method: 'GET',
@@ -1221,14 +1270,16 @@
                 },
                 success: function(response) {
                     earlyWarningData = response;
-                    updateMainStats(); // Update main dashboard stats
+                    updateMainStats();
                 },
                 error: function(error) {
                     console.error('Error loading early warning data:', error);
                 }
             });
-            
-            // Load skripsi final data
+        }
+        
+        // Load skripsi final data from server
+        function loadSkripsiFinalDataFromServer() {
             $.ajax({
                 url: scriptUrl,
                 method: 'GET',
@@ -1237,8 +1288,7 @@
                     action: 'getSkripsiFinal'
                 },
                 success: function(response) {
-                    // Data loaded, but not stored globally as not needed elsewhere
-                    updateMainStats(); // Update main dashboard stats
+                    updateMainStats();
                 },
                 error: function(error) {
                     console.error('Error loading skripsi final data:', error);
@@ -1293,15 +1343,6 @@
         
         // Initialize dosen options
         function initDosenOptions() {
-            // In a real application, this would come from a database
-            const dosenList = [
-                {id: 1, nama: "Dr. Ahmad Susanto, M.Si"},
-                {id: 2, nama: "Prof. Dr. Siti Aminah, M.Ag"},
-                {id: 3, nama: "Dr. Muhammad Rizal, S.E., M.Si"},
-                {id: 4, nama: "Dr. Fatimah Zahra, M.E.I"},
-                {id: 5, nama: "Dr. Abdul Rahman, S.E.I., M.Si"}
-            ];
-            
             const selectPembimbing1 = $('#dosenPembimbing1');
             const selectPembimbing2 = $('#dosenPembimbing2');
             
@@ -1872,4 +1913,3 @@
     </script>
 </body>
 </html>
-
