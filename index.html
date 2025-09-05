@@ -282,6 +282,8 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             z-index: 1000;
             display: none;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
         /* Responsive adjustments */
@@ -330,23 +332,26 @@
             }
         }
         
-        /* Google Form Container */
-        .google-form-container {
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
         }
         
-        .google-form-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+        .toast {
+            background-color: white;
+            border-left: 4px solid;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .toast-success {
+            border-left-color: var(--success-color);
+        }
+        
+        .toast-error {
+            border-left-color: var(--accent-color);
         }
     </style>
 </head>
@@ -431,6 +436,9 @@
         <!-- Page Content -->
         <div id="content">
             <div class="container-fluid">
+                <!-- Toast container for notifications -->
+                <div class="toast-container"></div>
+                
                 <!-- Main Dashboard Stats -->
                 <div class="row mb-4" id="mainDashboardStats">
                     <div class="col-md-3 col-sm-6 mb-3">
@@ -469,7 +477,7 @@
                 
                 <!-- Bimbingan Section -->
                 <div id="bimbinganContent">
-                    <!-- Pengajuan Proposal - Diubah dari iframe ke form HTML -->
+                    <!-- Pengajuan Proposal -->
                     <div class="content-section" id="pengajuan">
                         <div class="card">
                             <div class="card-header">
@@ -787,18 +795,18 @@
                                 <form id="uploadSkripsiForm">
                                     <div class="mb-3 autofill-container">
                                         <label for="nimSkripsi" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" id="nimSkripsi" required>
+                                        <input type="text" class="form-control" id="nimSkripsi" required autocomplete="off">
                                         <div class="autofill-suggestions" id="nimSuggestions"></div>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="namaSkripsi" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" id="namaSkripsi" required>
+                                        <input type="text" class="form-control" id="namaSkripsi" required readonly>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="prodiSkripsi" class="form-label">Program Studi</label>
-                                        <select class="form-select" id="prodiSkripsi" required>
+                                        <select class="form-select" id="prodiSkripsi" required disabled>
                                             <option value="">Pilih Program Studi</option>
                                             <option value="ES">Ekonomi Syariah</option>
                                             <option value="PS">Perbankan Syariah</option>
@@ -905,6 +913,7 @@
     
     <script>
         // Google Apps Script Web App URL
+        // GANTI_DENGAN_URL_WEB_APP_ANDA
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbztWwgwJtmZPB2NZyGikD9PRsKtXmTeoeRyc3Z3nE5PgwaYa9rdx7KjK3lm-SaV4GrDXA/exec';
         
         // Global variables
@@ -913,6 +922,7 @@
         let bimbinganData = [];
         let skripsiData = [];
         let earlyWarningData = [];
+        let skripsiFinalData = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -957,24 +967,52 @@
             // Add event listener for NIM input to autofill data
             $('#nimSkripsi').on('input', function() {
                 const nim = $(this).val().trim();
-                if (nim.length > 0) {
-                    // Find the student data by NIM in bimbinganData
-                    const studentData = bimbinganData.find(item => item.NIM === nim);
-                    if (studentData) {
-                        // If found, autofill and disable fields
-                        $('#namaSkripsi').val(studentData.Nama).prop('readonly', true);
-                        $('#prodiSkripsi').val(studentData.Prodi).prop('disabled', true);
-                        $('#judulSkripsiFinal').val(studentData.Judul);
-                    } else {
-                        // If not found, enable fields and clear
-                        $('#namaSkripsi').val('').prop('readonly', false);
-                        $('#prodiSkripsi').val('').prop('disabled', false);
-                        $('#judulSkripsiFinal').val('');
-                    }
+                const suggestions = $('#nimSuggestions');
+                
+                if (nim.length === 0) {
+                    suggestions.hide();
+                    return;
+                }
+                
+                // Filter bimbinganData based on NIM
+                const matches = bimbinganData.filter(item => 
+                    item.NIM && item.NIM.toString().includes(nim)
+                );
+                
+                if (matches.length > 0) {
+                    suggestions.empty();
+                    matches.slice(0, 5).forEach(match => {
+                        suggestions.append(`
+                            <div class="autofill-option" data-nim="${match.NIM}" data-nama="${match.Nama}" data-prodi="${match.Prodi}" data-judul="${match.Judul}">
+                                ${match.NIM} - ${match.Nama}
+                            </div>
+                        `);
+                    });
+                    suggestions.show();
                 } else {
-                    $('#namaSkripsi').val('').prop('readonly', false);
-                    $('#prodiSkripsi').val('').prop('disabled', false);
-                    $('#judulSkripsiFinal').val('');
+                    suggestions.hide();
+                }
+            });
+            
+            // Handle click on autofill option
+            $(document).on('click', '.autofill-option', function() {
+                const nim = $(this).data('nim');
+                const nama = $(this).data('nama');
+                const prodi = $(this).data('prodi');
+                const judul = $(this).data('judul');
+                
+                $('#nimSkripsi').val(nim);
+                $('#namaSkripsi').val(nama);
+                $('#prodiSkripsi').val(prodi);
+                $('#judulSkripsiFinal').val(judul);
+                
+                $('#nimSuggestions').hide();
+            });
+            
+            // Hide suggestions when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.autofill-container').length) {
+                    $('#nimSuggestions').hide();
                 }
             });
 
@@ -993,11 +1031,17 @@
                 const fileInput = $('#fileProposal')[0];
                 
                 if (!nim || !nama || !prodi || !tahunAkademik || !judul || !dosenPembimbing1 || !fileInput.files[0]) {
-                    alert('Harap lengkapi semua field yang wajib diisi');
+                    showToast('Harap lengkapi semua field yang wajib diisi', 'error');
                     return;
                 }
                 
                 const file = fileInput.files[0];
+                
+                // Validate file size
+                if (file.size > 10 * 1024 * 1024) { // 10MB
+                    showToast('Ukuran file terlalu besar. Maksimal 10MB.', 'error');
+                    return;
+                }
                 
                 // Show loading
                 const submitBtn = $(this).find('button[type="submit"]');
@@ -1012,50 +1056,51 @@
                     const base64 = reader.result.split(',')[1];
                     
                     // Prepare data for submission
-                    const formData = new FormData();
-                    formData.append('action', 'uploadProposal');
-                    formData.append('nim', nim);
-                    formData.append('nama', nama);
-                    formData.append('prodi', prodi);
-                    formData.append('tahunAkademik', tahunAkademik);
-                    formData.append('judul', judul);
-                    formData.append('dosenPembimbing1', dosenPembimbing1);
-                    formData.append('dosenPembimbing2', dosenPembimbing2 || '');
-                    formData.append('filename', file.name);
-                    formData.append('mimeType', file.type);
-                    formData.append('file', base64);
+                    const formData = {
+                        action: 'uploadProposal',
+                        nim: nim,
+                        nama: nama,
+                        prodi: prodi,
+                        tahunAkademik: tahunAkademik,
+                        judul: judul,
+                        dosenPembimbing1: dosenPembimbing1,
+                        dosenPembimbing2: dosenPembimbing2 || '',
+                        filename: file.name,
+                        mimeType: file.type,
+                        file: base64
+                    };
                     
                     // Send data to Google Apps Script
-                    fetch(scriptUrl, {
+                    $.ajax({
+                        url: scriptUrl,
                         method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.result === 'success') {
-                            alert('Proposal berhasil diajukan!');
-                            $('#pengajuanProposalForm')[0].reset();
-                            
-                            // Reload data to reflect changes
-                            loadInitialData();
-                        } else {
-                            alert('Terjadi kesalahan: ' + data.message);
+                        data: formData,
+                        success: function(data) {
+                            if (data.result === 'success') {
+                                showToast('Proposal berhasil diajukan!', 'success');
+                                $('#pengajuanProposalForm')[0].reset();
+                                
+                                // Reload data to reflect changes
+                                loadInitialData();
+                            } else {
+                                showToast('Terjadi kesalahan: ' + data.message, 'error');
+                            }
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                            showToast('Terjadi kesalahan saat mengajukan proposal.', 'error');
+                        },
+                        complete: function() {
+                            // Restore button
+                            submitBtn.html(originalText);
+                            submitBtn.prop('disabled', false);
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat mengajukan proposal.');
-                    })
-                    .finally(() => {
-                        // Restore button
-                        submitBtn.html(originalText);
-                        submitBtn.prop('disabled', false);
                     });
                 };
                 
                 reader.onerror = function(error) {
                     console.error('Error reading file:', error);
-                    alert('Terjadi kesalahan saat membaca file.');
+                    showToast('Terjadi kesalahan saat membaca file.', 'error');
                     submitBtn.html(originalText);
                     submitBtn.prop('disabled', false);
                 };
@@ -1229,7 +1274,7 @@
                     action: 'getSkripsiFinal'
                 },
                 success: function(response) {
-                    // Data loaded, but not stored globally as not needed elsewhere
+                    skripsiFinalData = response;
                     updateMainStats(); // Update main dashboard stats
                 },
                 error: function(error) {
@@ -1307,8 +1352,8 @@
             
             // Add dosen options
             dosenList.forEach(dosen => {
-                selectPembimbing1.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
-                selectPembimbing2.append(`<option value="${dosen.id}">${dosen.nama}</option>`);
+                selectPembimbing1.append(`<option value="${dosen.nama}">${dosen.nama}</option>`);
+                selectPembimbing2.append(`<option value="${dosen.nama}">${dosen.nama}</option>`);
             });
         }
         
@@ -1335,13 +1380,23 @@
                         <td>${item.Judul || ''}</td>
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-info view-proposal" data-url="${item.FileProposal}"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
                         </td>
                     </tr>
                 `;
                 
                 tableBody.append(row);
+            });
+            
+            // Add event listener for view proposal buttons
+            $('.view-proposal').click(function() {
+                const url = $(this).data('url');
+                if (url) {
+                    window.open(url, '_blank');
+                } else {
+                    showToast('Tidak ada file proposal yang terkait', 'error');
+                }
             });
             
             hideLoading();
@@ -1358,7 +1413,7 @@
             }
             
             bimbinganData.forEach(item => {
-                const progress = Math.min(100, Math.floor(Math.random() * 100));
+                const progress = calculateProgress(item.Status);
                 
                 const row = `
                     <tr>
@@ -1370,7 +1425,7 @@
                                 <div class="progress-bar" role="progressbar" style="width: ${progress}%;">${progress}%</div>
                             </div>
                         </td>
-                        <td>${new Date().toLocaleDateString('id-ID')}</td>
+                        <td>${formatDate(item.Timestamp)}</td>
                         <td>
                             <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
@@ -1399,10 +1454,9 @@
             }
             
             bimbinganData.forEach(item => {
-                const progress = Math.min(100, Math.floor(Math.random() * 100));
+                const progress = calculateProgress(item.Status);
                 const statusClass = getStatusClass(item.Status);
-                const estSelesai = new Date();
-                estSelesai.setDate(estSelesai.getDate() + Math.floor(Math.random() * 90));
+                const estSelesai = calculateEstimatedCompletion(item.Timestamp, progress);
                 
                 const row = `
                     <tr>
@@ -1508,12 +1562,25 @@
         function updateProdiChart() {
             const ctx = document.getElementById('prodiChart').getContext('2d');
             
+            // Count bimbingan by prodi
+            const prodiCount = {
+                'ES': 0,
+                'PS': 0,
+                'MBS': 0
+            };
+            
+            bimbinganData.forEach(item => {
+                if (item.Prodi && prodiCount.hasOwnProperty(item.Prodi)) {
+                    prodiCount[item.Prodi]++;
+                }
+            });
+            
             // Sample data
             const data = {
                 labels: ['Ekonomi Syariah', 'Perbankan Syariah', 'Manajemen Bisnis Syariah'],
                 datasets: [{
                     label: 'Jumlah Bimbingan',
-                    data: [25, 18, 22],
+                    data: [prodiCount.ES, prodiCount.PS, prodiCount.MBS],
                     backgroundColor: [
                         'rgba(52, 152, 219, 0.7)',
                         'rgba(46, 204, 113, 0.7)',
@@ -1552,11 +1619,24 @@
         function updateStatusChart() {
             const ctx = document.getElementById('statusChart').getContext('2d');
             
+            // Count by status
+            const statusCount = {
+                'Selesai': 0,
+                'Dalam Proses': 0,
+                'Terlambat': 0
+            };
+            
+            bimbinganData.forEach(item => {
+                if (item.Status && statusCount.hasOwnProperty(item.Status)) {
+                    statusCount[item.Status]++;
+                }
+            });
+            
             // Sample data
             const data = {
                 labels: ['Selesai', 'Dalam Proses', 'Terlambat'],
                 datasets: [{
-                    data: [35, 45, 20],
+                    data: [statusCount.Selesai, statusCount['Dalam Proses'], statusCount.Terlambat],
                     backgroundColor: [
                         'rgba(46, 204, 113, 0.7)',
                         'rgba(52, 152, 219, 0.7)',
@@ -1636,12 +1716,24 @@
         function updateTrendChart() {
             const ctx = document.getElementById('trendChart').getContext('2d');
             
+            // Count skripsi by year
+            const yearCount = {};
+            skripsiData.forEach(item => {
+                if (item.Tahun) {
+                    yearCount[item.Tahun] = (yearCount[item.Tahun] || 0) + 1;
+                }
+            });
+            
+            // Get sorted years
+            const years = Object.keys(yearCount).sort();
+            const counts = years.map(year => yearCount[year]);
+            
             // Sample data
             const data = {
-                labels: ['2018', '2019', '2020', '2021', '2022'],
+                labels: years,
                 datasets: [{
                     label: 'Jumlah Skripsi',
-                    data: [15, 22, 30, 35, 42],
+                    data: counts,
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1
@@ -1688,11 +1780,17 @@
             const approval = $('#approvalCheck').is(':checked');
             
             if (!nim || !nama || !prodi || !judul || !tahunLulus || !tanggalSidang || !fileInput.files[0] || !approval) {
-                alert('Harap lengkapi semua field dan centang persetujuan');
+                showToast('Harap lengkapi semua field dan centang persetujuan', 'error');
                 return;
             }
             
             const file = fileInput.files[0];
+            
+            // Validate file size
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                showToast('Ukuran file terlalu besar. Maksimal 10MB.', 'error');
+                return;
+            }
             
             // Show loading
             const submitBtn = $(this).find('button[type="submit"]');
@@ -1707,49 +1805,54 @@
                 const base64 = reader.result.split(',')[1];
                 
                 // Prepare data for submission
-                const formData = new FormData();
-                formData.append('action', 'uploadSkripsiFinal');
-                formData.append('nim', nim);
-                formData.append('nama', nama);
-                formData.append('prodi', prodi);
-                formData.append('judul', judul);
-                formData.append('tahunLulus', tahunLulus);
-                formData.append('tanggalSidang', tanggalSidang);
-                formData.append('filename', file.name);
-                formData.append('mimeType', file.type);
-                formData.append('file', base64);
+                const formData = {
+                    action: 'uploadSkripsiFinal',
+                    nim: nim,
+                    nama: nama,
+                    prodi: prodi,
+                    judul: judul,
+                    tahunLulus: tahunLulus,
+                    tanggalSidang: tanggalSidang,
+                    filename: file.name,
+                    mimeType: file.type,
+                    file: base64
+                };
                 
                 // Send data to Google Apps Script
-                fetch(scriptUrl, {
+                $.ajax({
+                    url: scriptUrl,
                     method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.result === 'success') {
-                        alert('Skripsi final berhasil diupload dan data telah disinkronisasi!');
-                        $('#uploadSkripsiForm')[0].reset();
-                        
-                        // Reload data to reflect changes
-                        loadInitialData();
-                    } else {
-                        alert('Terjadi kesalahan: ' + data.message);
+                    data: formData,
+                    success: function(data) {
+                        if (data.result === 'success') {
+                            showToast('Skripsi final berhasil diupload dan data telah disinkronisasi!', 'success');
+                            $('#uploadSkripsiForm')[0].reset();
+                            
+                            // Enable fields that were disabled
+                            $('#namaSkripsi').prop('readonly', false);
+                            $('#prodiSkripsi').prop('disabled', false);
+                            
+                            // Reload data to reflect changes
+                            loadInitialData();
+                        } else {
+                            showToast('Terjadi kesalahan: ' + data.message, 'error');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        showToast('Terjadi kesalahan saat mengupload skripsi final.', 'error');
+                    },
+                    complete: function() {
+                        // Restore button
+                        submitBtn.html(originalText);
+                        submitBtn.prop('disabled', false);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengupload skripsi final.');
-                })
-                .finally(() => {
-                    // Restore button
-                    submitBtn.html(originalText);
-                    submitBtn.prop('disabled', false);
                 });
             };
             
             reader.onerror = function(error) {
                 console.error('Error reading file:', error);
-                alert('Terjadi kesalahan saat membaca file.');
+                showToast('Terjadi kesalahan saat membaca file.', 'error');
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
             };
@@ -1757,9 +1860,49 @@
         
         // Filter skripsi table
         $('#filterTahun, #filterProdi, #filterStatus, #btnSearch').change(function() {
-            // In a real application, this would filter the data from server
-            // For now, we'll just show a message
-            console.log('Filtering data...');
+            const tahun = $('#filterTahun').val();
+            const prodi = $('#filterProdi').val();
+            const status = $('#filterStatus').val();
+            const searchText = $('#searchJudul').val().toLowerCase();
+            
+            const filteredData = skripsiData.filter(item => {
+                const matchTahun = !tahun || item.Tahun == tahun;
+                const matchProdi = !prodi || item.Prodi === prodi;
+                const matchStatus = !status || (status === 'Lulus' ? item.Status === 'Lulus' : item.Status !== 'Lulus');
+                const matchSearch = !searchText || (item.Judul && item.Judul.toLowerCase().includes(searchText));
+                
+                return matchTahun && matchProdi && matchStatus && matchSearch;
+            });
+            
+            const tableBody = $('#tableSkripsi tbody');
+            tableBody.empty();
+            
+            if (filteredData.length === 0) {
+                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data yang sesuai dengan filter</td></tr>');
+                return;
+            }
+            
+            filteredData.forEach(item => {
+                const statusClass = item.Status === 'Lulus' ? 'bg-success' : 'bg-warning';
+                
+                const row = `
+                    <tr>
+                        <td>${item.Judul || ''}</td>
+                        <td>${item.Penulis || ''}</td>
+                        <td>${item.Tahun || ''}</td>
+                        <td>${getProdiName(item.Prodi) || ''}</td>
+                        <td>${item.Pembimbing1 || ''}</td>
+                        <td>${item.Pembimbing2 || ''}</td>
+                        <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                `;
+                
+                tableBody.append(row);
+            });
         });
         
         // Helper function to get status class for badges
@@ -1816,6 +1959,33 @@
             return 'Pengajuan Judul';
         }
         
+        // Helper function to calculate progress based on status
+        function calculateProgress(status) {
+            switch(status) {
+                case 'Selesai': return 100;
+                case 'Dalam Proses': return 50;
+                case 'Terlambat': return 25;
+                default: return 0;
+            }
+        }
+        
+        // Helper function to calculate estimated completion date
+        function calculateEstimatedCompletion(timestamp, progress) {
+            const startDate = timestamp ? new Date(timestamp) : new Date();
+            const remainingProgress = 100 - progress;
+            const daysNeeded = Math.floor(remainingProgress * 0.5); // Assuming 0.5 days per percent
+            const completionDate = new Date(startDate);
+            completionDate.setDate(completionDate.getDate() + daysNeeded);
+            return completionDate;
+        }
+        
+        // Helper function to format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID');
+        }
+        
         // Show loading state
         function showLoading() {
             $('#tableBimbingan tbody').html('<tr><td colspan="8" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
@@ -1825,7 +1995,37 @@
         function hideLoading() {
             // Loading state will be replaced with actual data
         }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = $('.toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const toast = $(`
+                <div class="toast ${type === 'success' ? 'toast-success' : 'toast-error'}" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-body">
+                        <div class="d-flex">
+                            <div class="me-2">
+                                <i class="fas ${type === 'success' ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-danger'}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            toastContainer.append(toast);
+            const bsToast = new bootstrap.Toast(toast[0]);
+            bsToast.show();
+            
+            // Remove toast after it hides
+            toast[0].addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
     </script>
 </body>
 </html>
-
