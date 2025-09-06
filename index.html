@@ -427,10 +427,6 @@
                     <form id="notificationForm">
                         <input type="hidden" id="notifNim" name="nim">
                         <div class="mb-3">
-                            <label for="notifEmail" class="form-label">Email Tujuan</label>
-                            <input type="email" class="form-control" id="notifEmail" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="notifMessage" class="form-label">Pesan Notifikasi</label>
                             <textarea class="form-control" id="notifMessage" rows="4" placeholder="Tulis pesan notifikasi di sini..." required></textarea>
                         </div>
@@ -585,11 +581,6 @@
                                     </div>
                                     
                                     <div class="mb-3">
-                                        <label for="emailProposal" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="emailProposal" required>
-                                    </div>
-                                    
-                                    <div class="mb-3">
                                         <label for="prodiProposal" class="form-label">Program Studi</label>
                                         <select class="form-select" id="prodiProposal" required>
                                             <option value="">Pilih Program Studi</option>
@@ -655,7 +646,6 @@
                                             <tr>
                                                 <th>NIM</th>
                                                 <th>Nama</th>
-                                                <th>Email</th>
                                                 <th>Prodi</th>
                                                 <th>Pembimbing 1</th>
                                                 <th>Pembimbing 2</th>
@@ -693,7 +683,6 @@
                                             <tr>
                                                 <th>NIM</th>
                                                 <th>Nama</th>
-                                                <th>Email</th>
                                                 <th>Tahap</th>
                                                 <th>Progress</th>
                                                 <th>Terakhir Update</th>
@@ -753,7 +742,6 @@
                                             <tr>
                                                 <th>NIM</th>
                                                 <th>Nama</th>
-                                                <th>Email</th>
                                                 <th>Prodi</th>
                                                 <th>Judul</th>
                                                 <th>Status</th>
@@ -789,7 +777,6 @@
                                             <tr>
                                                 <th>NIM</th>
                                                 <th>Nama</th>
-                                                <th>Email</th>
                                                 <th>Prodi</th>
                                                 <th>Semester</th>
                                                 <th>Status</th>
@@ -858,7 +845,6 @@
                                             <tr>
                                                 <th>Judul</th>
                                                 <th>Penulis</th>
-                                                <th>Email</th>
                                                 <th>Tahun</th>
                                                 <th>Prodi</th>
                                                 <th>Pembimbing 1</th>
@@ -898,11 +884,6 @@
                                     <div class="mb-3">
                                         <label for="namaSkripsi" class="form-label">Nama Lengkap</label>
                                         <input type="text" class="form-control" id="namaSkripsi" required>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="emailSkripsi" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="emailSkripsi" required>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -1014,7 +995,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxTsZfUVeb0RemhFbmsbSJRq1Ct51hCWg62U7MNN5s0pT1kjo2ZoZnUKtK5dmhmYV6uCQ/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyLBELBVLJHWdCM7NKaYZCXCYdGzMDhOjvBNrVoDbYlxznYJGG0Fq6WHoRmnWw1HHgsg/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -1076,19 +1057,16 @@
                     if (studentData) {
                         // If found, autofill and disable fields
                         $('#namaSkripsi').val(studentData.Nama).prop('readonly', true);
-                        $('#emailSkripsi').val(studentData.Email).prop('readonly', true);
                         $('#prodiSkripsi').val(studentData.Prodi).prop('disabled', true);
                         $('#judulSkripsiFinal').val(studentData.Judul);
                     } else {
                         // If not found, enable fields and clear
                         $('#namaSkripsi').val('').prop('readonly', false);
-                        $('#emailSkripsi').val('').prop('readonly', false);
                         $('#prodiSkripsi').val('').prop('disabled', false);
                         $('#judulSkripsiFinal').val('');
                     }
                 } else {
                     $('#namaSkripsi').val('').prop('readonly', false);
-                    $('#emailSkripsi').val('').prop('readonly', false);
                     $('#prodiSkripsi').val('').prop('disabled', false);
                     $('#judulSkripsiFinal').val('');
                 }
@@ -1101,7 +1079,6 @@
                 // Basic validation
                 const nim = $('#nimProposal').val();
                 const nama = $('#namaProposal').val();
-                const email = $('#emailProposal').val();
                 const prodi = $('#prodiProposal').val();
                 const tahunAkademik = $('#tahunAkademik').val();
                 const judul = $('#judulProposal').val();
@@ -1111,14 +1088,8 @@
                 const dosenPembimbing2Nama = $('#dosenPembimbing2 option:selected').text();
                 const fileInput = $('#fileProposal')[0];
                 
-                if (!nim || !nama || !email || !prodi || !tahunAkademik || !judul || !dosenPembimbing1 || !fileInput.files[0]) {
+                if (!nim || !nama || !prodi || !tahunAkademik || !judul || !dosenPembimbing1 || !fileInput.files[0]) {
                     showNotification('Harap lengkapi semua field yang wajib diisi', 'warning');
-                    return;
-                }
-                
-                // Validate email format
-                if (!isValidEmail(email)) {
-                    showNotification('Format email tidak valid', 'warning');
                     return;
                 }
                 
@@ -1147,7 +1118,6 @@
                     formData.append('action', 'uploadProposal');
                     formData.append('nim', nim);
                     formData.append('nama', nama);
-                    formData.append('email', email);
                     formData.append('prodi', prodi);
                     formData.append('tahunAkademik', tahunAkademik);
                     formData.append('judul', judul);
@@ -1238,16 +1208,10 @@
             // Event handler untuk kirim notifikasi
             $('#sendNotificationBtn').click(function() {
                 const nim = $('#notifNim').val();
-                const email = $('#notifEmail').val();
                 const message = $('#notifMessage').val();
                 
-                if (!email || !message) {
-                    showNotification('Harap isi email dan pesan notifikasi', 'warning');
-                    return;
-                }
-                
-                if (!isValidEmail(email)) {
-                    showNotification('Format email tidak valid', 'warning');
+                if (!message) {
+                    showNotification('Harap isi pesan notifikasi', 'warning');
                     return;
                 }
                 
@@ -1262,7 +1226,6 @@
                     data: {
                         action: 'sendNotification',
                         nim: nim,
-                        email: email,
                         message: message
                     },
                     success: function(response) {
@@ -1598,7 +1561,7 @@
             tableBody.empty();
             
             if (bimbinganData.length === 0) {
-                tableBody.append('<tr><td colspan="9" class="text-center">Tidak ada data bimbingan</td></tr>');
+                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data bimbingan</td></tr>');
                 return;
             }
             
@@ -1609,7 +1572,6 @@
                     <tr>
                         <td>${item.NIM || ''}</td>
                         <td>${item.Nama || ''}</td>
-                        <td>${item.Email || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
                         <td>${item.Pembimbing1 || ''}</td>
                         <td>${item.Pembimbing2 || ''}</td>
@@ -1648,7 +1610,6 @@
                     <table class="table table-bordered">
                         <tr><th>NIM</th><td>${data.NIM || '-'}</td></tr>
                         <tr><th>Nama</th><td>${data.Nama || '-'}</td></tr>
-                        <tr><th>Email</th><td>${data.Email || '-'}</td></tr>
                         <tr><th>Program Studi</th><td>${getProdiName(data.Prodi) || '-'}</td></tr>
                         <tr><th>Tahun Akademik</th><td>${data.TahunAkademik || '-'}</td></tr>
                         <tr><th>Judul Proposal</th><td>${data.Judul || '-'}</td></tr>
@@ -1681,7 +1642,7 @@
             tableBody.empty();
             
             if (bimbinganData.length === 0) {
-                tableBody.append('<tr><td colspan="7" class="text-center">Tidak ada data tahap bimbingan</td></tr>');
+                tableBody.append('<tr><td colspan="6" class="text-center">Tidak ada data tahap bimbingan</td></tr>');
                 return;
             }
             
@@ -1692,7 +1653,6 @@
                     <tr>
                         <td>${item.NIM || ''}</td>
                         <td>${item.Nama || ''}</td>
-                        <td>${item.Email || ''}</td>
                         <td>${getTahapBimbingan(progress)}</td>
                         <td>
                             <div class="progress">
@@ -1723,7 +1683,7 @@
             $('#terlambatBimbingan').text(bimbinganData.filter(item => item.Status === 'Terlambat').length);
             
             if (bimbinganData.length === 0) {
-                tableBody.append('<tr><td colspan="9" class="text-center">Tidak ada data status bimbingan</td></tr>');
+                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data status bimbingan</td></tr>');
                 return;
             }
             
@@ -1737,7 +1697,6 @@
                     <tr>
                         <td>${item.NIM || ''}</td>
                         <td>${item.Nama || ''}</td>
-                        <td>${item.Email || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
                         <td>${item.Judul || ''}</td>
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
@@ -1775,7 +1734,7 @@
             tableBody.empty();
             
             if (earlyWarningData.length === 0) {
-                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data early warning</td></tr>');
+                tableBody.append('<tr><td colspan="7" class="text-center">Tidak ada data early warning</td></tr>');
                 return;
             }
             
@@ -1786,13 +1745,12 @@
                     <tr>
                         <td>${item.NIM || ''}</td>
                         <td>${item.Nama || ''}</td>
-                        <td>${item.Email || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
                         <td>${item.Semester || ''}</td>
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
                         <td><span class="badge bg-danger">${item.Peringatan || ''}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}" data-email="${item.Email || ''}"><i class="fas fa-bell"></i> Notifikasi</button>
+                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}"><i class="fas fa-bell"></i> Notifikasi</button>
                         </td>
                     </tr>
                 `;
@@ -1802,12 +1760,10 @@
             // Add event listeners to notification buttons
             $('.notif-btn').click(function() {
                 const nim = $(this).data('nim');
-                const email = $(this).data('email');
                 const data = earlyWarningData.find(item => item.NIM === nim);
                 
                 if (data) {
                     $('#notifNim').val(data.NIM);
-                    $('#notifEmail').val(email || '');
                     $('#notifMessage').val(`Kepada ${data.Nama} (NIM: ${data.NIM}),\n\nAnda mendapatkan peringatan early warning dari sistem karena belum menyelesaikan skripsi. Status Anda saat ini: ${data.Status}. Silakan segera menghubungi pembimbing untuk bimbingan lebih lanjut.\n\nSalam,\nSistem Informasi Bimbingan Skripsi`);
                     $('#notificationModal').modal('show');
                 }
@@ -1820,7 +1776,7 @@
             tableBody.empty();
             
             if (skripsiData.length === 0) {
-                tableBody.append('<tr><td colspan="9" class="text-center">Tidak ada data skripsi</td></tr>');
+                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data skripsi</td></tr>');
                 return;
             }
             
@@ -1831,7 +1787,6 @@
                     <tr>
                         <td>${item.Judul || ''}</td>
                         <td>${item.Penulis || ''}</td>
-                        <td>${item.Email || ''}</td>
                         <td>${item.Tahun || ''}</td>
                         <td>${getProdiName(item.Prodi) || ''}</td>
                         <td>${item.Pembimbing1 || ''}</td>
@@ -2038,7 +1993,6 @@
             // Basic validation
             const nim = $('#nimSkripsi').val();
             const nama = $('#namaSkripsi').val();
-            const email = $('#emailSkripsi').val();
             const prodi = $('#prodiSkripsi').val();
             const judul = $('#judulSkripsiFinal').val();
             const tahunLulus = $('#tahunLulus').val();
@@ -2046,14 +2000,8 @@
             const fileInput = $('#fileSkripsi')[0];
             const approval = $('#approvalCheck').is(':checked');
             
-            if (!nim || !nama || !email || !prodi || !judul || !tahunLulus || !tanggalSidang || !fileInput.files[0] || !approval) {
+            if (!nim || !nama || !prodi || !judul || !tahunLulus || !tanggalSidang || !fileInput.files[0] || !approval) {
                 showNotification('Harap lengkapi semua field dan centang persetujuan', 'warning');
-                return;
-            }
-            
-            // Validate email format
-            if (!isValidEmail(email)) {
-                showNotification('Format email tidak valid', 'warning');
                 return;
             }
             
@@ -2082,7 +2030,6 @@
                 formData.append('action', 'uploadSkripsiFinal');
                 formData.append('nim', nim);
                 formData.append('nama', nama);
-                formData.append('email', email);
                 formData.append('prodi', prodi);
                 formData.append('judul', judul);
                 formData.append('tahunLulus', tahunLulus);
@@ -2107,13 +2054,12 @@
                     } else {
                         showNotification('Terjadi kesalahan: ' + data.message, 'error');
                     }
-                    // Restore button
-                    submitBtn.html(originalText);
-                    submitBtn.prop('disabled', false);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showNotification('Terjadi kesalahan saat mengupload skripsi final.', 'error');
+                })
+                .finally(() => {
                     // Restore button
                     submitBtn.html(originalText);
                     submitBtn.prop('disabled', false);
@@ -2191,12 +2137,6 @@
             return 'Pengajuan Judul';
         }
         
-        // Helper function to validate email format
-        function isValidEmail(email) {
-            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(String(email).toLowerCase());
-        }
-        
         // Show notification
         function showNotification(message, type = 'info') {
             const toast = $('.toast');
@@ -2229,7 +2169,7 @@
         
         // Show loading state
         function showLoading() {
-            $('#tableBimbingan tbody').html('<tr><td colspan="9" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+            $('#tableBimbingan tbody').html('<tr><td colspan="8" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
         }
         
         // Hide loading state
