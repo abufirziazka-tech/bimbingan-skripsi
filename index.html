@@ -354,6 +354,34 @@
         .btn-close {
             filter: invert(1);
         }
+        
+        /* Email suggestions styling */
+        .email-suggestion {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        .email-suggestion:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .email-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -426,6 +454,18 @@
                 <div class="modal-body">
                     <form id="notificationForm">
                         <input type="hidden" id="notifNim" name="nim">
+                        <div class="mb-3">
+                            <label for="recipientEmail" class="form-label">Email Penerima</label>
+                            <div class="autofill-container">
+                                <input type="email" class="form-control" id="recipientEmail" required placeholder="Masukkan alamat email">
+                                <div class="email-suggestions" id="emailSuggestions"></div>
+                            </div>
+                            <div class="form-text">Email akan dikirim ke alamat ini</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notifSubject" class="form-label">Subjek Email</label>
+                            <input type="text" class="form-control" id="notifSubject" value="Peringatan Early Warning Bimbingan Skripsi" required>
+                        </div>
                         <div class="mb-3">
                             <label for="notifMessage" class="form-label">Pesan Notifikasi</label>
                             <textarea class="form-control" id="notifMessage" rows="4" placeholder="Tulis pesan notifikasi di sini..." required></textarea>
@@ -506,7 +546,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+        </li>
                 
                 <li>
                     <a href="#statistik" class="main-item">
@@ -995,7 +1035,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyLBELBVLJHWdCM7NKaYZCXCYdGzMDhOjvBNrVoDbYlxznYJGG0Fq6WHoRmnWw1HHgsg/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxjey0dGWo0NGObiYzD-FPIGcC1KFBUDmLkJ4eTbV3FauHnWty_7dlmBB3VOY6zm9oQGA/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -1004,6 +1044,7 @@
         let skripsiData = [];
         let earlyWarningData = [];
         let dosenList = [];
+        let emailSuggestions = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -1208,10 +1249,19 @@
             // Event handler untuk kirim notifikasi
             $('#sendNotificationBtn').click(function() {
                 const nim = $('#notifNim').val();
+                const email = $('#recipientEmail').val();
+                const subject = $('#notifSubject').val();
                 const message = $('#notifMessage').val();
                 
-                if (!message) {
-                    showNotification('Harap isi pesan notifikasi', 'warning');
+                if (!email || !subject || !message) {
+                    showNotification('Harap lengkapi semua field notifikasi', 'warning');
+                    return;
+                }
+                
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showNotification('Format email tidak valid', 'warning');
                     return;
                 }
                 
@@ -1226,6 +1276,8 @@
                     data: {
                         action: 'sendNotification',
                         nim: nim,
+                        email: email,
+                        subject: subject,
                         message: message
                     },
                     success: function(response) {
@@ -1245,6 +1297,47 @@
                         $('#sendNotificationBtn').html('Kirim Notifikasi').prop('disabled', false);
                     }
                 });
+            });
+            
+            // Event handler untuk input email (autocomplete)
+            $('#recipientEmail').on('input', function() {
+                const email = $(this).val().toLowerCase();
+                const suggestions = $('#emailSuggestions');
+                
+                if (email.length === 0) {
+                    suggestions.hide();
+                    return;
+                }
+                
+                // Filter suggestions based on input
+                const filteredSuggestions = emailSuggestions.filter(suggestion => 
+                    suggestion.toLowerCase().includes(email)
+                );
+                
+                if (filteredSuggestions.length === 0) {
+                    suggestions.hide();
+                    return;
+                }
+                
+                // Show suggestions
+                suggestions.empty();
+                filteredSuggestions.forEach(suggestion => {
+                    suggestions.append(`<div class="email-suggestion">${suggestion}</div>`);
+                });
+                suggestions.show();
+            });
+            
+            // Event handler untuk memilih suggestion
+            $(document).on('click', '.email-suggestion', function() {
+                $('#recipientEmail').val($(this).text());
+                $('#emailSuggestions').hide();
+            });
+            
+            // Hide suggestions when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.autofill-container').length) {
+                    $('#emailSuggestions').hide();
+                }
             });
         });
         
@@ -1370,6 +1463,7 @@
                     loadSkripsiDataFromServer();
                     loadEarlyWarningDataFromServer();
                     loadSkripsiFinalDataFromServer();
+                    loadEmailSuggestions();
                 },
                 error: function(error) {
                     console.error('Error loading dosen data:', error);
@@ -1409,6 +1503,7 @@
                     loadSkripsiDataFromServer();
                     loadEarlyWarningDataFromServer();
                     loadSkripsiFinalDataFromServer();
+                    loadEmailSuggestions();
                 }
             });
         }
@@ -1488,6 +1583,20 @@
                     console.error('Error loading skripsi final data:', error);
                 }
             });
+        }
+        
+        // Load email suggestions
+        function loadEmailSuggestions() {
+            // In a real application, this would come from the server
+            // For now, we'll use a static list of common email domains
+            emailSuggestions = [
+                'student.example.ac.id',
+                'mahasiswa.example.ac.id',
+                'gmail.com',
+                'yahoo.com',
+                'outlook.com',
+                'hotmail.com'
+            ];
         }
         
         // Update main dashboard statistics
@@ -1750,7 +1859,7 @@
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
                         <td><span class="badge bg-danger">${item.Peringatan || ''}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}"><i class="fas fa-bell"></i> Notifikasi</button>
+                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}" data-nama="${item.Nama}"><i class="fas fa-bell"></i> Notifikasi</button>
                         </td>
                     </tr>
                 `;
@@ -1760,10 +1869,13 @@
             // Add event listeners to notification buttons
             $('.notif-btn').click(function() {
                 const nim = $(this).data('nim');
+                const nama = $(this).data('nama');
                 const data = earlyWarningData.find(item => item.NIM === nim);
                 
                 if (data) {
                     $('#notifNim').val(data.NIM);
+                    $('#recipientEmail').val('');
+                    $('#notifSubject').val('Peringatan Early Warning Bimbingan Skripsi');
                     $('#notifMessage').val(`Kepada ${data.Nama} (NIM: ${data.NIM}),\n\nAnda mendapatkan peringatan early warning dari sistem karena belum menyelesaikan skripsi. Status Anda saat ini: ${data.Status}. Silakan segera menghubungi pembimbing untuk bimbingan lebih lanjut.\n\nSalam,\nSistem Informasi Bimbingan Skripsi`);
                     $('#notificationModal').modal('show');
                 }
