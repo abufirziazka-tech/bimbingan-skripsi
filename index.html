@@ -338,6 +338,22 @@
             z-index: 1050;
             min-width: 300px;
         }
+        
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
     </style>
 </head>
 <body>
@@ -348,6 +364,80 @@
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
+    </div>
+
+    <!-- Modal for Bimbingan Details -->
+    <div class="modal fade" id="bimbinganDetailModal" tabindex="-1" aria-labelledby="bimbinganDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bimbinganDetailModalLabel">Detail Bimbingan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="bimbinganDetailContent">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Edit Status -->
+    <div class="modal fade" id="editStatusModal" tabindex="-1" aria-labelledby="editStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStatusModalLabel">Ubah Status Bimbingan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStatusForm">
+                        <input type="hidden" id="editNim" name="nim">
+                        <div class="mb-3">
+                            <label for="statusSelect" class="form-label">Status Bimbingan</label>
+                            <select class="form-select" id="statusSelect" name="status" required>
+                                <option value="Dalam Proses">Dalam Proses</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Terlambat">Terlambat</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveStatusBtn">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Send Notification -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">Kirim Notifikasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="notificationForm">
+                        <input type="hidden" id="notifNim" name="nim">
+                        <div class="mb-3">
+                            <label for="notifMessage" class="form-label">Pesan Notifikasi</label>
+                            <textarea class="form-control" id="notifMessage" rows="4" placeholder="Tulis pesan notifikasi di sini..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="sendNotificationBtn">Kirim Notifikasi</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="d-flex" id="wrapper">
@@ -657,6 +747,7 @@
                                                 <th>Status</th>
                                                 <th>Progress</th>
                                                 <th>Estimasi Selesai</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -904,7 +995,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyLBELBVLJHWdCM7NKaYZCXCYdGzMDhOjvBNrVoDbYlxznYJGG0Fq6WHoRmnWw1HHgsg/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwlbRfvnk2WZGYG6lrt3XGXFUBv9pE-zvUotbaJs-AXaGj5ycA-FR08RpW0Mec7gnRK/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -1072,6 +1163,88 @@
                     submitBtn.html(originalText);
                     submitBtn.prop('disabled', false);
                 };
+            });
+            
+            // Event handler untuk simpan status
+            $('#saveStatusBtn').click(function() {
+                const nim = $('#editNim').val();
+                const newStatus = $('#statusSelect').val();
+                
+                // Show loading
+                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
+                $(this).prop('disabled', true);
+                
+                // Send update request
+                $.ajax({
+                    url: scriptUrl,
+                    method: 'POST',
+                    data: {
+                        action: 'updateStatus',
+                        nim: nim,
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        const data = JSON.parse(response);
+                        if (data.result === 'success') {
+                            showNotification('Status berhasil diperbarui', 'success');
+                            $('#editStatusModal').modal('hide');
+                            
+                            // Reload data to reflect changes
+                            loadBimbinganDataFromServer();
+                        } else {
+                            showNotification('Gagal memperbarui status: ' + data.message, 'error');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        showNotification('Terjadi kesalahan saat memperbarui status', 'error');
+                    },
+                    complete: function() {
+                        $('#saveStatusBtn').html('Simpan Perubahan').prop('disabled', false);
+                    }
+                });
+            });
+            
+            // Event handler untuk kirim notifikasi
+            $('#sendNotificationBtn').click(function() {
+                const nim = $('#notifNim').val();
+                const message = $('#notifMessage').val();
+                
+                if (!message) {
+                    showNotification('Harap isi pesan notifikasi', 'warning');
+                    return;
+                }
+                
+                // Show loading
+                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...');
+                $(this).prop('disabled', true);
+                
+                // Send notification request
+                $.ajax({
+                    url: scriptUrl,
+                    method: 'POST',
+                    data: {
+                        action: 'sendNotification',
+                        nim: nim,
+                        message: message
+                    },
+                    success: function(response) {
+                        const data = JSON.parse(response);
+                        if (data.result === 'success') {
+                            showNotification('Notifikasi berhasil dikirim', 'success');
+                            $('#notificationModal').modal('hide');
+                        } else {
+                            showNotification('Gagal mengirim notifikasi: ' + data.message, 'error');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        showNotification('Terjadi kesalahan saat mengirim notifikasi', 'error');
+                    },
+                    complete: function() {
+                        $('#sendNotificationBtn').html('Kirim Notifikasi').prop('disabled', false);
+                    }
+                });
             });
         });
         
@@ -1405,8 +1578,8 @@
                         <td>${item.Judul || ''}</td>
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-info"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-info view-btn" data-nim="${item.NIM}"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-warning edit-btn" data-nim="${item.NIM}"><i class="fas fa-edit"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1414,7 +1587,53 @@
                 tableBody.append(row);
             });
             
+            // Add event listeners to buttons
+            $('.view-btn').click(function() {
+                const nim = $(this).data('nim');
+                viewBimbinganDetail(nim);
+            });
+            
+            $('.edit-btn').click(function() {
+                const nim = $(this).data('nim');
+                editBimbinganStatus(nim);
+            });
+            
             hideLoading();
+        }
+        
+        // View bimbingan detail
+        function viewBimbinganDetail(nim) {
+            const data = bimbinganData.find(item => item.NIM === nim);
+            
+            if (data) {
+                const detailContent = `
+                    <table class="table table-bordered">
+                        <tr><th>NIM</th><td>${data.NIM || '-'}</td></tr>
+                        <tr><th>Nama</th><td>${data.Nama || '-'}</td></tr>
+                        <tr><th>Program Studi</th><td>${getProdiName(data.Prodi) || '-'}</td></tr>
+                        <tr><th>Tahun Akademik</th><td>${data.TahunAkademik || '-'}</td></tr>
+                        <tr><th>Judul Proposal</th><td>${data.Judul || '-'}</td></tr>
+                        <tr><th>Pembimbing 1</th><td>${data.Pembimbing1 || '-'}</td></tr>
+                        <tr><th>Pembimbing 2</th><td>${data.Pembimbing2 || '-'}</td></tr>
+                        <tr><th>Status</th><td><span class="badge ${getStatusClass(data.Status)}">${data.Status || '-'}</span></td></tr>
+                        <tr><th>File Proposal</th><td>${data.FileProposal ? `<a href="${data.FileProposal}" target="_blank">Lihat Proposal</a>` : 'Tidak ada file'}</td></tr>
+                    </table>
+                `;
+                
+                $('#bimbinganDetailContent').html(detailContent);
+                $('#bimbinganDetailModal').modal('show');
+            }
+        }
+        
+        // Edit bimbingan status
+        function editBimbinganStatus(nim) {
+            const data = bimbinganData.find(item => item.NIM === nim);
+            
+            if (data) {
+                $('#editNim').val(data.NIM);
+                $('#statusSelect').val(data.Status || 'Dalam Proses');
+                $('#editStatusModal').modal('show');
+            }
         }
         
         // Load tahap bimbingan data
@@ -1464,7 +1683,7 @@
             $('#terlambatBimbingan').text(bimbinganData.filter(item => item.Status === 'Terlambat').length);
             
             if (bimbinganData.length === 0) {
-                tableBody.append('<tr><td colspan="7" class="text-center">Tidak ada data status bimbingan</td></tr>');
+                tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data status bimbingan</td></tr>');
                 return;
             }
             
@@ -1487,10 +1706,25 @@
                             </div>
                         </td>
                         <td>${estSelesai.toLocaleDateString('id-ID')}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info view-btn" data-nim="${item.NIM}"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-warning edit-btn" data-nim="${item.NIM}"><i class="fas fa-edit"></i></button>
+                        </td>
                     </tr>
                 `;
                 
                 tableBody.append(row);
+            });
+            
+            // Add event listeners to buttons
+            $('.view-btn').click(function() {
+                const nim = $(this).data('nim');
+                viewBimbinganDetail(nim);
+            });
+            
+            $('.edit-btn').click(function() {
+                const nim = $(this).data('nim');
+                editBimbinganStatus(nim);
             });
         }
         
@@ -1516,11 +1750,23 @@
                         <td><span class="badge ${statusClass}">${item.Status || ''}</span></td>
                         <td><span class="badge bg-danger">${item.Peringatan || ''}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-warning"><i class="fas fa-bell"></i> Notifikasi</button>
+                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}"><i class="fas fa-bell"></i> Notifikasi</button>
                         </td>
                     </tr>
                 `;
                 tableBody.append(row);
+            });
+            
+            // Add event listeners to notification buttons
+            $('.notif-btn').click(function() {
+                const nim = $(this).data('nim');
+                const data = earlyWarningData.find(item => item.NIM === nim);
+                
+                if (data) {
+                    $('#notifNim').val(data.NIM);
+                    $('#notifMessage').val(`Kepada ${data.Nama} (NIM: ${data.NIM}),\n\nAnda mendapatkan peringatan early warning dari sistem karena belum menyelesaikan skripsi. Status Anda saat ini: ${data.Status}. Silakan segera menghubungi pembimbing untuk bimbingan lebih lanjut.\n\nSalam,\nSistem Informasi Bimbingan Skripsi`);
+                    $('#notificationModal').modal('show');
+                }
             });
         }
         
