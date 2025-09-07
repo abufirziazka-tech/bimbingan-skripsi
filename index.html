@@ -412,6 +412,23 @@
             background-color: #d4edda;
             border: 1px solid #c3e6cb;
         }
+        
+        /* Similarity progress bar */
+        .similarity-progress {
+            height: 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .similarity-progress-bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -1134,7 +1151,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyyLBELBVLJHWdCM7NKaYZCXCYdGzMDhOjvBNrVoDbYlxznYJGG0Fq6WHoRmnWw1HHgsg/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxhBbujvp4bW-7iPjvDgSbT7HGOeyyTrmc6TxlFX3z_bOuQgUwHTlV1y9yoXor8JAjM/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -2161,7 +2178,10 @@
             $('#similarityCheckResult').html(`
                 <div class="similarity-result ${similarityBg}">
                     <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
-                    <p class="mb-0 small">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul dapat diterima.'}</p>
+                    <div class="similarity-progress bg-light">
+                        <div class="similarity-progress-bar ${similarityClass}" style="width: ${similarity}%;">${similarity.toFixed(2)}%</div>
+                    </div>
+                    <p class="mb-0 small mt-2">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul dapat diterima.'}</p>
                 </div>
             `);
             
@@ -2183,7 +2203,10 @@
                 $('#similarityResult').html(`
                     <div class="similarity-result ${similarityBg}">
                         <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
-                        <p class="mb-0">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul memiliki kemiripan sedang dengan judul yang sudah ada.'}</p>
+                        <div class="similarity-progress bg-light">
+                            <div class="similarity-progress-bar ${similarityClass}" style="width: ${similarity}%;">${similarity.toFixed(2)}%</div>
+                        </div>
+                        <p class="mb-0 mt-2">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul memiliki kemiripan sedang dengan judul yang sudah ada.'}</p>
                     </div>
                 `);
                 
