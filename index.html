@@ -382,6 +382,36 @@
             max-height: 200px;
             overflow-y: auto;
         }
+
+        /* Similarity Check Styling */
+        .similarity-check-container {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .similarity-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .similarity-high-bg {
+            background-color: #ffeaea;
+            border: 1px solid #f5c6cb;
+        }
+
+        .similarity-medium-bg {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+
+        .similarity-low-bg {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 </head>
 <body>
@@ -503,6 +533,38 @@
         </div>
     </div>
 
+    <!-- Modal for Similarity Check -->
+    <div class="modal fade" id="similarityModal" tabindex="-1" aria-labelledby="similarityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="similarityModalLabel">Hasil Pengecekan Similarity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Sistem telah menganalisis judul proposal Anda dan membandingkannya dengan database skripsi yang ada.
+                    </div>
+                    
+                    <div class="similarity-result" id="similarityResult">
+                        <!-- Hasil similarity akan ditampilkan di sini -->
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>Judul-judul yang mirip:</h6>
+                        <div id="similarTitlesList" class="mt-2">
+                            <!-- Daftar judul yang mirip akan ditampilkan di sini -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" id="proceedAnywayBtn">Lanjutkan Anyway</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-dark" id="sidebar">
@@ -569,7 +631,7 @@
                             </a>
                         </li>
                     </ul>
-        </li>
+                </li>
                 
                 <li>
                     <a href="#statistik" class="main-item">
@@ -664,6 +726,20 @@
                                     <div class="mb-3">
                                         <label for="judulProposal" class="form-label">Judul Proposal</label>
                                         <textarea class="form-control" id="judulProposal" rows="3" required></textarea>
+                                        <div class="form-text">Gunakan format yang jelas dan sesuai dengan kaidah penulisan ilmiah</div>
+                                    </div>
+
+                                    <!-- Similarity Check Section -->
+                                    <div class="similarity-check-container">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Pengecekan Similarity Judul</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="checkSimilarityBtn">
+                                                <i class="fas fa-search"></i> Cek Similarity
+                                            </button>
+                                        </div>
+                                        <div id="similarityCheckResult" class="mt-2">
+                                            <!-- Hasil pengecekan similarity akan ditampilkan di sini -->
+                                        </div>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -1058,7 +1134,7 @@
     
     <script>
         // Google Apps Script Web App URL
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyMTKvOLxahuCIZ03XTbdfWhpFYYHCX9nCEzOnBqejQhAvD_bLeg-r2iklnAam-eYFs/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbybnyfa8RIBOlmkeE6hXfOlk5YmdEGc4MW65z8ZRhuCnsrh-j_1x3Czbo5Jl2SEPA6d/exec';
         
         // Global variables
         let currentSection = 'pengajuan';
@@ -1068,6 +1144,7 @@
         let earlyWarningData = [];
         let dosenList = [];
         let emailSuggestions = [];
+        let filteredSkripsiData = [];
         
         // Initialize dashboard
         $(document).ready(function() {
@@ -1362,6 +1439,32 @@
                     $('#emailSuggestions').hide();
                 }
             });
+
+            // Event handler untuk pencarian judul skripsi
+            $('#btnSearch').click(function() {
+                filterSkripsiTable();
+            });
+
+            $('#searchJudul').on('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    filterSkripsiTable();
+                }
+            });
+
+            $('#filterTahun, #filterProdi, #filterStatus').change(function() {
+                filterSkripsiTable();
+            });
+
+            // Event handler untuk cek similarity
+            $('#checkSimilarityBtn').click(function() {
+                checkSimilarity();
+            });
+
+            // Event handler untuk tombol lanjutkan meski similarity tinggi
+            $('#proceedAnywayBtn').click(function() {
+                $('#similarityModal').modal('hide');
+                $('#pengajuanProposalForm').off('submit').submit();
+            });
         });
         
         // Initialize sidebar menu functionality
@@ -1563,6 +1666,7 @@
                 },
                 success: function(response) {
                     skripsiData = response;
+                    filteredSkripsiData = [...skripsiData]; // Initialize filtered data
                     updateMainStats();
                 },
                 error: function(error) {
@@ -1910,12 +2014,12 @@
             const tableBody = $('#tableSkripsi tbody');
             tableBody.empty();
             
-            if (skripsiData.length === 0) {
+            if (filteredSkripsiData.length === 0) {
                 tableBody.append('<tr><td colspan="8" class="text-center">Tidak ada data skripsi</td></tr>');
                 return;
             }
             
-            skripsiData.forEach(item => {
+            filteredSkripsiData.forEach(item => {
                 const statusClass = item.Status === 'Lulus' ? 'bg-success' : 'bg-warning';
                 
                 const row = `
@@ -1942,6 +2046,27 @@
                 const id = $(this).data('id');
                 viewSkripsiDetail(id);
             });
+        }
+        
+        // Filter skripsi table based on search criteria
+        function filterSkripsiTable() {
+            const searchText = $('#searchJudul').val().toLowerCase();
+            const filterTahun = $('#filterTahun').val();
+            const filterProdi = $('#filterProdi').val();
+            const filterStatus = $('#filterStatus').val();
+            
+            filteredSkripsiData = skripsiData.filter(item => {
+                const judulMatch = !searchText || item.Judul.toLowerCase().includes(searchText);
+                const tahunMatch = !filterTahun || item.Tahun == filterTahun;
+                const prodiMatch = !filterProdi || item.Prodi === filterProdi;
+                const statusMatch = !filterStatus || 
+                    (filterStatus === 'Lulus' && item.Status === 'Lulus') ||
+                    (filterStatus === 'Proses' && item.Status !== 'Lulus');
+                
+                return judulMatch && tahunMatch && prodiMatch && statusMatch;
+            });
+            
+            loadSkripsiData();
         }
         
         // View skripsi detail
@@ -1972,6 +2097,98 @@
                 }
                 
                 $('#skripsiDetailModal').modal('show');
+            }
+        }
+        
+        // Check similarity of proposal title
+        function checkSimilarity() {
+            const judul = $('#judulProposal').val().trim();
+            
+            if (!judul) {
+                showNotification('Masukkan judul proposal terlebih dahulu', 'warning');
+                return;
+            }
+            
+            // Show loading
+            $('#checkSimilarityBtn').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengecek...');
+            $('#checkSimilarityBtn').prop('disabled', true);
+            
+            // Send request to check similarity
+            $.ajax({
+                url: scriptUrl,
+                method: 'POST',
+                data: {
+                    action: 'checkSimilarity',
+                    judul: judul
+                },
+                success: function(response) {
+                    const data = JSON.parse(response);
+                    
+                    if (data.result === 'success') {
+                        displaySimilarityResult(data.similarity, data.similarTitles);
+                    } else {
+                        showNotification('Gagal memeriksa similarity: ' + data.message, 'error');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan saat memeriksa similarity', 'error');
+                },
+                complete: function() {
+                    $('#checkSimilarityBtn').html('<i class="fas fa-search"></i> Cek Similarity');
+                    $('#checkSimilarityBtn').prop('disabled', false);
+                }
+            });
+        }
+        
+        // Display similarity check result
+        function displaySimilarityResult(similarity, similarTitles) {
+            let similarityClass = 'similarity-low';
+            let similarityBg = 'similarity-low-bg';
+            let similarityText = 'Rendah';
+            
+            if (similarity >= 70) {
+                similarityClass = 'similarity-high';
+                similarityBg = 'similarity-high-bg';
+                similarityText = 'Tinggi';
+            } else if (similarity >= 40) {
+                similarityClass = 'similarity-medium';
+                similarityBg = 'similarity-medium-bg';
+                similarityText = 'Sedang';
+            }
+            
+            // Update the similarity check result in the form
+            $('#similarityCheckResult').html(`
+                <div class="similarity-result ${similarityBg}">
+                    <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
+                    <p class="mb-0 small">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul dapat diterima.'}</p>
+                </div>
+            `);
+            
+            // If similarity is high, show modal with details
+            if (similarity >= 40) {
+                let similarTitlesHtml = '';
+                
+                if (similarTitles && similarTitles.length > 0) {
+                    similarTitles.forEach(title => {
+                        similarTitlesHtml += `<div class="mb-2 p-2 border rounded">
+                            <div class="fw-bold">${title.Judul}</div>
+                            <div class="small">Oleh: ${title.Penulis} (${title.Tahun}) - Similarity: ${title.Similarity.toFixed(2)}%</div>
+                        </div>`;
+                    });
+                } else {
+                    similarTitlesHtml = '<p>Tidak ditemukan judul yang mirip secara spesifik.</p>';
+                }
+                
+                $('#similarityResult').html(`
+                    <div class="similarity-result ${similarityBg}">
+                        <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
+                        <p class="mb-0">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul memiliki kemiripan sedang dengan judul yang sudah ada.'}</p>
+                    </div>
+                `);
+                
+                $('#similarTitlesList').html(similarTitlesHtml);
+                $('#similarityModal').modal('show');
             }
         }
         
@@ -2244,13 +2461,6 @@
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
             };
-        });
-        
-        // Filter skripsi table
-        $('#filterTahun, #filterProdi, #filterStatus, #btnSearch').change(function() {
-            // In a real application, this would filter the data from server
-            // For now, we'll just show a message
-            console.log('Filtering data...');
         });
         
         // Helper function to get status class for badges
