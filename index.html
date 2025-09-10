@@ -429,6 +429,27 @@
             color: white;
             font-weight: bold;
         }
+        
+        /* Tabel Detail Proposal */
+        .detail-proposal-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-proposal-table th {
+            background-color: #f8f9fa;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #dee2e6;
+            width: 30%;
+        }
+        .detail-proposal-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .detail-proposal-table tr:last-child th,
+        .detail-proposal-table tr:last-child td {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -577,6 +598,57 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                     <button type="button" class="btn btn-primary" id="proceedAnywayBtn">Lanjutkan Anyway</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Proposal Modal - Diperbarui dengan tampilan tabel -->
+    <div class="modal fade" id="viewProposalModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Detail Proposal Skripsi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="viewProposalContent">
+                    <table class="table detail-proposal-table">
+                        <tr>
+                            <th>NIM</th>
+                            <td id="viewNim"></td>
+                        </tr>
+                        <tr>
+                            <th>Nama</th>
+                            <td id="viewNama"></td>
+                        </tr>
+                        <tr>
+                            <th>Program Studi</th>
+                            <td id="viewProdi"></td>
+                        </tr>
+                        <tr>
+                            <th>Tahun Akademik</th>
+                            <td id="viewTahunAkademik"></td>
+                        </tr>
+                        <tr>
+                            <th>Judul Proposal</th>
+                            <td id="viewJudul"></td>
+                        </tr>
+                        <tr>
+                            <th>Pembimbing 1</th>
+                            <td id="viewPembimbing1"></td>
+                        </tr>
+                        <tr>
+                            <th>Pembimbing 2</th>
+                            <td id="viewPembimbing2"></td>
+                        </tr>
+                        <tr>
+                            <th>File Proposal</th>
+                            <td id="viewFile"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -746,7 +818,7 @@
                                         <div class="form-text">Gunakan format yang jelas dan sesuai dengan kaidah penulisan ilmiah</div>
                                     </div>
 
-                                    <!-- Similarity Check Section -->
+                                    <!-- Similarity Check Section - Diperbarui -->
                                     <div class="similarity-check-container">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h6 class="mb-0">Pengecekan Similarity Judul</h6>
@@ -757,6 +829,7 @@
                                         <div id="similarityCheckResult" class="mt-2">
                                             <!-- Hasil pengecekan similarity akan ditampilkan di sini -->
                                         </div>
+                                        <div id="recommendation" class="mt-2 fw-bold"></div>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -1163,6 +1236,36 @@
         let emailSuggestions = [];
         let filteredSkripsiData = [];
         
+        // Daftar dosen statis sesuai permintaan
+        const staticDosenList = [
+            {id: 1, nama: "Prof. Dr. Hj. Darmawati, M. Hum"},
+            {id: 2, nama: "Dr. H. Moh. Mahrus, M. HI"},
+            {id: 3, nama: "Dr. Iskandar, M. Ag."},
+            {id: 4, nama: "Dr. Hj. Wahdatunnisa, M.A."},
+            {id: 5, nama: "Dr. Tikawati, M. SI."},
+            {id: 6, nama: "Dr. Hj. Norvadewi, M. Ag."},
+            {id: 7, nama: "Nurul Fadhilah, M.E."},
+            {id: 8, nama: "Fitria Rahmah, S.EI, M.A."},
+            {id: 9, nama: "Tika Parlina, SE., MM."},
+            {id: 10, nama: "Irma Yuliani, SE., M. SI."},
+            {id: 11, nama: "Dedy Mainata, M. Ag."},
+            {id: 12, nama: "Rista Aribowo, M. Pd."},
+            {id: 13, nama: "Akhmad Nurzaroni, M. Ag."},
+            {id: 14, nama: "H. Yusran, M. Ag."},
+            {id: 15, nama: "Nur Rahmatullah, SE., M. SA."},
+            {id: 16, nama: "Ahmad Syarif, M. Sc."},
+            {id: 17, nama: "Alias Candra, M. EI."},
+            {id: 18, nama: "Iswadi, M. SI."},
+            {id: 19, nama: "Dharma Yanti, SE., M. SI."},
+            {id: 20, nama: "Yovanda Noni, M. SI."},
+            {id: 21, nama: "Dr. H. Mursyid, M. SI."},
+            {id: 22, nama: "Muhammad Hasbi, M. SE."},
+            {id: 23, nama: "Mahmud al Chusairi, M. E."},
+            {id: 24, nama: "Dr. H. M. Birusman Nuryadin, M. SI."},
+            {id: 25, nama: "Sugiono, M. Kom."},
+            {id: 26, nama: "Dr. H. Shafa, M. Pd."}
+        ];
+        
         // Initialize dashboard
         $(document).ready(function() {
             // Initialize sidebar menu
@@ -1472,7 +1575,7 @@
                 filterSkripsiTable();
             });
 
-            // Event handler untuk cek similarity
+            // Event handler untuk cek similarity - Diperbarui
             $('#checkSimilarityBtn').click(function() {
                 checkSimilarity();
             });
@@ -1611,34 +1714,7 @@
                 error: function(error) {
                     console.error('Error loading dosen data:', error);
                     // If failed to load dosen data, use default list
-                    dosenList = [
-                        {id: 1, nama: "Prof. Dr. Hj. Darmawati, M. Hum"},
-                        {id: 2, nama: "Dr. H. Moh. Mahrus, M. HI"},
-                        {id: 3, nama: "Dr. Iskandar, M. Ag."},
-                        {id: 4, nama: "Dr. Hj. Wahdatunnisa, M.A."},
-                        {id: 5, nama: "Dr. Tikawati, M. SI."},
-                        {id: 6, nama: "Dr. Hj. Norvadewi, M. Ag."},
-                        {id: 7, nama: "Nurul Fadhilah, M.E."},
-                        {id: 8, nama: "Fitria Rahmah, S.EI, M.A."},
-                        {id: 9, nama: "Tika Parlina, SE., MM."},
-                        {id: 10, nama: "Irma Yuliani, SE., M. SI."},
-                        {id: 11, nama: "Dedy Mainata, M. Ag."},
-                        {id: 12, nama: "Rista Aribowo, M. Pd."},
-                        {id: 13, nama: "Akhmad Nurzaroni, M. Ag."},
-                        {id: 14, nama: "H. Yusran, M. Ag."},
-                        {id: 15, nama: "Nur Rahmatullah, SE., M. SA."},
-                        {id: 16, nama: "Ahmad Syarif, M. Sc."},
-                        {id: 17, nama: "Alias Candra, M. EI."},
-                        {id: 18, nama: "Iswadi, M. SI."},
-                        {id: 19, nama: "Dharma Yanti, SE., M. SI."},
-                        {id: 20, nama: "Yovanda Noni, M. SI."},
-                        {id: 21, nama: "Dr. H. Mursyid, M. SI."},
-                        {id: 22, nama: "Muhammad Hasbi, M. SE."},
-                        {id: 23, nama: "Mahmud al Chusairi, M. E."},
-                        {id: 24, nama: "Dr. H. M. Birusman Nuryadin, M. SI."},
-                        {id: 25, nama: "Sugiono, M. Kom."},
-                        {id: 26, nama: "Dr. H. Shafa, M. Pd."}
-                    ];
+                    dosenList = staticDosenList;
                     initDosenOptions();
                     
                     // Load other data
@@ -1833,6 +1909,7 @@
                         <td>
                             <button class="btn btn-sm btn-info view-btn" data-nim="${item.NIM}"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-warning edit-btn" data-nim="${item.NIM}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-warning notif-btn" data-nim="${item.NIM}" data-nama="${item.Nama}"><i class="fas fa-bell"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1849,6 +1926,12 @@
             $('.edit-btn').click(function() {
                 const nim = $(this).data('nim');
                 editBimbinganStatus(nim);
+            });
+            
+            $('.notif-btn').click(function() {
+                const nim = $(this).data('nim');
+                const nama = $(this).data('nama');
+                openNotif(nim, nama);
             });
             
             hideLoading();
@@ -2014,15 +2097,7 @@
             $('.notif-btn').click(function() {
                 const nim = $(this).data('nim');
                 const nama = $(this).data('nama');
-                const data = earlyWarningData.find(item => item.NIM === nim);
-                
-                if (data) {
-                    $('#notifNim').val(data.NIM);
-                    $('#recipientEmail').val('');
-                    $('#notifSubject').val('Peringatan Early Warning Bimbingan Skripsi');
-                    $('#notifMessage').val(`Kepada ${data.Nama} (NIM: ${data.NIM}),\n\nAnda mendapatkan peringatan early warning dari sistem karena belum menyelesaikan skripsi. Status Anda saat ini: ${data.Status}. Silakan segera menghubungi pembimbing untuk bimbingan lebih lanjut.\n\nSalam,\nSistem Informasi Bimbingan Skripsi`);
-                    $('#notificationModal').modal('show');
-                }
+                openNotif(nim, nama);
             });
         }
         
@@ -2117,102 +2192,84 @@
             }
         }
         
-        // Check similarity of proposal title
+        // Cek Similarity - Diperbarui
         function checkSimilarity() {
-            const judul = $('#judulProposal').val().trim();
-            
+            const judul = $("#judulProposal").val().trim();
             if (!judul) {
-                showNotification('Masukkan judul proposal terlebih dahulu', 'warning');
+                showToast("Masukkan judul dulu", "warning");
                 return;
             }
             
-            // Show loading
-            $('#checkSimilarityBtn').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengecek...');
-            $('#checkSimilarityBtn').prop('disabled', true);
+            $("#similarityCheckResult").html('<div class="spinner-border text-primary"></div> Mengecek...');
+            $("#similarTitlesList").empty();
+            $("#recommendation").empty();
             
-            // Send request to check similarity
-            $.ajax({
-                url: scriptUrl,
-                method: 'POST',
-                data: {
-                    action: 'checkSimilarity',
-                    judul: judul
-                },
-                success: function(response) {
-                    const data = JSON.parse(response);
-                    
-                    if (data.result === 'success') {
-                        displaySimilarityResult(data.similarity, data.similarTitles);
+            const fd = new FormData();
+            fd.append("action", "checkSimilarity");
+            fd.append("judul", judul);
+            
+            fetch(scriptUrl, {method: "POST", body: fd})
+                .then(r => r.json())
+                .then(res => {
+                    if (res.result === "success") {
+                        const sim = Number(res.similarity || 0);
+                        let cls = "similarity-low", msg = "Rendah", rec = "Diterima";
+                        
+                        if (sim >= 60) {
+                            cls = "similarity-high";
+                            msg = "Tinggi";
+                            rec = "Dikembalikan";
+                        } else if (sim >= 35) {
+                            cls = "similarity-medium";
+                            msg = "Sedang";
+                            rec = "Perbaiki";
+                        }
+                        
+                        $("#similarityCheckResult").html(`<div class="${cls}">Kemiripan tertinggi: ${sim}% — ${msg}</div>`);
+                        $("#recommendation").html(`Rekomendasi: <span class="${cls}">${rec}</span>`);
+                        
+                        const list = (res.similarTitles || []).map(s => 
+                            `<li>${s.Judul} — <small>${s.Penulis || ''}, ${s.Tahun || ''}</small> <span class="badge bg-secondary">${s.Similarity}%</span></li>`
+                        ).join('');
+                        
+                        $("#similarTitlesList").html(list ? `<ul>${list}</ul>` : '<div class="text-muted">Tidak ada judul serupa signifikan.</div>');
+                        
+                        // Tampilkan modal jika similarity tinggi atau sedang
+                        if (sim >= 35) {
+                            let similarTitlesHtml = '';
+                            
+                            if (res.similarTitles && res.similarTitles.length > 0) {
+                                res.similarTitles.forEach(title => {
+                                    similarTitlesHtml += `<div class="mb-2 p-2 border rounded">
+                                        <div class="fw-bold">${title.Judul}</div>
+                                        <div class="small">Oleh: ${title.Penulis || ''}, ${title.Tahun || ''} - Similarity: ${title.Similarity}%</div>
+                                    </div>`;
+                                });
+                            } else {
+                                similarTitlesHtml = '<p>Tidak ditemukan judul yang mirip secara spesifik.</p>';
+                            }
+                            
+                            $('#similarityResult').html(`
+                                <div class="similarity-result ${cls === 'similarity-high' ? 'similarity-high-bg' : cls === 'similarity-medium' ? 'similarity-medium-bg' : 'similarity-low-bg'}">
+                                    <p class="mb-1">Tingkat Similarity: <span class="${cls}">${sim}% (${msg})</span></p>
+                                    <div class="similarity-progress bg-light">
+                                        <div class="similarity-progress-bar ${cls}" style="width: ${sim}%;">${sim}%</div>
+                                    </div>
+                                    <p class="mb-0 mt-2">Rekomendasi: <span class="${cls}">${rec}</span></p>
+                                    <p class="mt-2">${sim >= 60 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul memiliki kemiripan sedang dengan judul yang sudah ada.'}</p>
+                                </div>
+                            `);
+                            
+                            $('#similarTitlesList').html(similarTitlesHtml);
+                            $('#similarityModal').modal('show');
+                        }
                     } else {
-                        showNotification('Gagal memeriksa similarity: ' + data.message, 'error');
+                        $("#similarityCheckResult").html('<div class="text-danger">' + (res.message || 'Gagal cek similarity') + '</div>');
                     }
-                },
-                error: function(error) {
-                    console.error('Error:', error);
-                    showNotification('Terjadi kesalahan saat memeriksa similarity', 'error');
-                },
-                complete: function() {
-                    $('#checkSimilarityBtn').html('<i class="fas fa-search"></i> Cek Similarity');
-                    $('#checkSimilarityBtn').prop('disabled', false);
-                }
-            });
-        }
-        
-        // Display similarity check result
-        function displaySimilarityResult(similarity, similarTitles) {
-            let similarityClass = 'similarity-low';
-            let similarityBg = 'similarity-low-bg';
-            let similarityText = 'Rendah';
-            
-            if (similarity >= 70) {
-                similarityClass = 'similarity-high';
-                similarityBg = 'similarity-high-bg';
-                similarityText = 'Tinggi';
-            } else if (similarity >= 40) {
-                similarityClass = 'similarity-medium';
-                similarityBg = 'similarity-medium-bg';
-                similarityText = 'Sedang';
-            }
-            
-            // Update the similarity check result in the form
-            $('#similarityCheckResult').html(`
-                <div class="similarity-result ${similarityBg}">
-                    <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
-                    <div class="similarity-progress bg-light">
-                        <div class="similarity-progress-bar ${similarityClass}" style="width: ${similarity}%;">${similarity.toFixed(2)}%</div>
-                    </div>
-                    <p class="mb-0 small mt-2">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul dapat diterima.'}</p>
-                </div>
-            `);
-            
-            // If similarity is high, show modal with details
-            if (similarity >= 40) {
-                let similarTitlesHtml = '';
-                
-                if (similarTitles && similarTitles.length > 0) {
-                    similarTitles.forEach(title => {
-                        similarTitlesHtml += `<div class="mb-2 p-2 border rounded">
-                            <div class="fw-bold">${title.Judul}</div>
-                            <div class="small">Oleh: ${title.Penulis} (${title.Tahun}) - Similarity: ${title.Similarity.toFixed(2)}%</div>
-                        </div>`;
-                    });
-                } else {
-                    similarTitlesHtml = '<p>Tidak ditemukan judul yang mirip secara spesifik.</p>';
-                }
-                
-                $('#similarityResult').html(`
-                    <div class="similarity-result ${similarityBg}">
-                        <p class="mb-1">Tingkat Similarity: <span class="${similarityClass}">${similarity.toFixed(2)}% (${similarityText})</span></p>
-                        <div class="similarity-progress bg-light">
-                            <div class="similarity-progress-bar ${similarityClass}" style="width: ${similarity}%;">${similarity.toFixed(2)}%</div>
-                        </div>
-                        <p class="mb-0 mt-2">${similarity >= 70 ? 'Judul memiliki kemiripan tinggi dengan judul yang sudah ada. Pertimbangkan untuk mengubah judul.' : 'Judul memiliki kemiripan sedang dengan judul yang sudah ada.'}</p>
-                    </div>
-                `);
-                
-                $('#similarTitlesList').html(similarTitlesHtml);
-                $('#similarityModal').modal('show');
-            }
+                })
+                .catch(err => {
+                    $("#similarityCheckResult").html('<div class="text-danger">Kesalahan koneksi</div>');
+                });
         }
         
         // Load statistik data
@@ -2580,6 +2637,116 @@
         // Hide loading state
         function hideLoading() {
             // Loading state will be replaced with actual data
+        }
+        
+        // Notification modal & send
+        function openNotif(nim, nama) {
+            try {
+                nim = decodeURIComponent(nim);
+            } catch(e) {}
+            
+            $('#notifNim').val(nim);
+            $('#recipientEmail').val('');
+            $('#notifSubject').val('Pemberitahuan Bimbingan');
+            $('#notifMessage').val(`Halo ${nama || ''},\n\nMohon perhatikan progres bimbingan skripsi Anda. Silakan hubungi pembimbing untuk tindakan lebih lanjut.\n\nSalam,`);
+            $('#notificationModal').modal('show');
+        }
+        
+        // View proposal function
+        function viewProposal(nim) {
+            try {
+                nim = decodeURIComponent(nim);
+            } catch(e) {
+                console.error('Error decoding NIM:', e);
+            }
+            
+            // Cari dengan toleransi perbedaan case dan trim spasi
+            const proposal = bimbinganData.find(item => 
+                item.NIM && item.NIM.toString().trim().toLowerCase() === nim.toString().trim().toLowerCase()
+            );
+            
+            if (!proposal) {
+                console.error('Proposal not found for NIM:', nim, 'Available data:', bimbinganData);
+                showNotification('Data proposal tidak ditemukan', 'warning');
+                return;
+            }
+            
+            // Isi data ke dalam modal
+            $('#viewNim').text(proposal.NIM || '');
+            $('#viewNama').text(proposal.Nama || '');
+            $('#viewProdi').text(getProdiName(proposal.Prodi) || '');
+            $('#viewTahunAkademik').text(proposal.TahunAkademik || '');
+            $('#viewJudul').text(proposal.Judul || '');
+            $('#viewPembimbing1').text(proposal.Pembimbing1 || '');
+            $('#viewPembimbing2').text(proposal.Pembimbing2 || '');
+            
+            // Tampilkan link file jika ada
+            if (proposal.FileId) {
+                $('#viewFile').html(`<a href="https://drive.google.com/file/d/${proposal.FileId}/view" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> Lihat File Proposal</a>`);
+            } else {
+                // Coba cari file proposal berdasarkan NIM di Google Drive
+                $('#viewFile').html(`<span class="text-muted">File sedang dicari...</span>`);
+                
+                // Panggil fungsi untuk mencari file berdasarkan NIM
+                searchProposalFileByNIM(nim).then(fileInfo => {
+                    if (fileInfo && fileInfo.fileId) {
+                        $('#viewFile').html(`<a href="https://drive.google.com/file/d/${fileInfo.fileId}/view" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> Lihat File Proposal</a>`);
+                    } else {
+                        $('#viewFile').html(`<span class="text-muted">File tidak ditemukan</span>`);
+                    }
+                }).catch(error => {
+                    console.error('Error searching for file:', error);
+                    $('#viewFile').html(`<span class="text-muted">File tidak ditemukan</span>`);
+                });
+            }
+            
+            // Tampilkan modal
+            new bootstrap.Modal(document.getElementById('viewProposalModal')).show();
+        }
+        
+        // Search Proposal File by NIM
+        function searchProposalFileByNIM(nim) {
+            return new Promise((resolve, reject) => {
+                const fd = new FormData();
+                fd.append('action', 'searchProposalByNIM');
+                fd.append('nim', nim);
+                
+                fetch(scriptUrl, { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.result === 'success' && res.fileId) {
+                            resolve({ fileId: res.fileId, fileName: res.fileName });
+                        } else {
+                            resolve(null);
+                        }
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            });
+        }
+        
+        // Small utilities
+        function showToast(message, type='info', timeout=4000) {
+            const id = 't'+Date.now();
+            const el = $(`<div id="${id}" class="toast align-items-center text-bg-${type=="danger"?"danger":type=="success"?"success":type=="warning"?"warning":"primary"} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div>`);
+            $('.notification-toast').append(el);
+            const t = new bootstrap.Toast(document.getElementById(id), { delay: timeout });
+            t.show();
+            // remove after hidden
+            el.on('hidden.bs.toast', ()=> el.remove());
+        }
+        
+        function escapeHtml(s) { 
+            if(!s && s!==0) return ''; 
+            return String(s).replace(/[&<>"'`=\/]/g, function (c) { 
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;',"/":'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]; 
+            }); 
+        }
+        
+        function escapeJs(s) { 
+            return (s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); 
         }
     </script>
 </body>
